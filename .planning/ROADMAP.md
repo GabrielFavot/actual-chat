@@ -43,6 +43,10 @@ This roadmap delivers the bot in 4 phases, moving from foundation to automation.
 3. Unauthorized user ID receives rejection message when interacting
 4. Authorized user list is configurable via environment variables
 
+**Plans:**
+- [ ] 01-01-PLAN.md — Project Setup
+- [ ] 01-02-PLAN.md — Authorization Implementation
+
 ---
 
 ### Phase 2: Integration
@@ -109,10 +113,7 @@ This roadmap delivers the bot in 4 phases, moving from foundation to automation.
 
 | Phase | Status | Requirements |
 |-------|--------|--------------|
-| 1 - Authorization | Pending | 2 |
-| 2 - Integration | Pending | 3 |
-| 3 - User Interface | Pending | 5 |
-| 4 - Automation | Pending | 3 |
+| 1 - Authorization | Planned: 2 plans | 2 |
 
 **Total:** 4 phases, 12 requirements
 
