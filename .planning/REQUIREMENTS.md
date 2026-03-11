@@ -29,8 +29,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Authorization
 
-- [ ] **AUTH-01**: Only authorized Telegram user IDs can interact with the bot
-- [ ] **AUTH-02**: Unauthorized users are silently ignored (no response, attempts logged)
+- [x] **AUTH-01**: Only authorized Telegram user IDs can interact with the bot
+- [x] **AUTH-02**: Unauthorized users are silently ignored (no response, attempts logged)
 
 ## v2 Requirements
 
@@ -68,8 +68,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Complete |
+| AUTH-02 | Phase 1 | Complete |
 | INT-01 | Phase 2 | Pending |
 | INT-02 | Phase 2 | Pending |
 | INT-03 | Phase 2 | Pending |
