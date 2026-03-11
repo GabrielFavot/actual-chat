@@ -68,6 +68,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
 | INT-01 | Phase 2 | Pending |
 | INT-02 | Phase 2 | Pending |
 | INT-03 | Phase 2 | Pending |
@@ -79,12 +81,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTO-01 | Phase 4 | Pending |
 | AUTO-02 | Phase 4 | Pending |
 | AUTO-03 | Phase 4 | Pending |
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 12 total
-- Mapped to phases: 12
+- Mapped to phases: 12 ✓
 - Unmapped: 0 ✓
 
 ---
