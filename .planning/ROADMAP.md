@@ -35,12 +35,12 @@ This roadmap delivers the bot in 4 phases, moving from foundation to automation.
 
 **Requirements:**
 - AUTH-01: Only authorized Telegram user IDs can interact with the bot
-- AUTH-02: Unauthorized users receive rejection message
+- AUTH-02: Unauthorized users are silently ignored (no response sent, attempts logged for security)
 
 **Success Criteria:**
 1. Bot starts and listens for messages
 2. Authorized user ID can trigger bot commands and receive responses
-3. Unauthorized user ID receives rejection message when interacting
+3. Unauthorized user ID is silently ignored (no response sent, attempt logged)
 4. Authorized user list is configurable via environment variables
 
 **Plans:**

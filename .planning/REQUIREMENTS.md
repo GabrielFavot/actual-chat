@@ -30,7 +30,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Authorization
 
 - [ ] **AUTH-01**: Only authorized Telegram user IDs can interact with the bot
-- [ ] **AUTH-02**: Unauthorized users receive rejection message
+- [ ] **AUTH-02**: Unauthorized users are silently ignored (no response, attempts logged)
 
 ## v2 Requirements
 
