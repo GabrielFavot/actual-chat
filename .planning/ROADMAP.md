@@ -66,6 +66,10 @@ This roadmap delivers the bot in 4 phases, moving from foundation to automation.
 3. Bot retrieves list of available categories from ActualBudget
 4. Connection errors are logged and reported to user
 
+**Plans:**
+- [ ] 02-01-PLAN.md — Install @actual-app/api and create API service
+- [ ] 02-02-PLAN.md — Integrate API into bot with credential validation
+
 ---
 
 ### Phase 3: User Interface
