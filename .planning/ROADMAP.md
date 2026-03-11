@@ -44,7 +44,7 @@ This roadmap delivers the bot in 4 phases, moving from foundation to automation.
 4. Authorized user list is configurable via environment variables
 
 **Plans:**
-- [ ] 01-01-PLAN.md — Project Setup
+- [x] 01-01-PLAN.md — Project Setup (Complete)
 - [ ] 01-02-PLAN.md — Authorization Implementation
 
 ---
@@ -113,7 +113,7 @@ This roadmap delivers the bot in 4 phases, moving from foundation to automation.
 
 | Phase | Status | Requirements |
 |-------|--------|--------------|
-| 1 - Authorization | Planned: 2 plans | 2 |
+| 1 - Authorization | In Progress: 1/2 plans | 2 |
 
 **Total:** 4 phases, 12 requirements
 
