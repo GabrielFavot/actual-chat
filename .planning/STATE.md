@@ -30,8 +30,9 @@
 - **Quick Task 001 Duration:** ~10 min
 - **Quick Task 002 Duration:** ~15 min
 - **Quick Task 003 Duration:** ~10 min
-- **Total Quick Tasks:** ~35 min
-- **Last activity:** 2026-03-12 - Quick Task 003: Fixed payee UUID display issue
+- **Quick Task 004 Duration:** ~5 min
+- **Total Quick Tasks:** ~40 min
+- **Last activity:** 2026-03-12 - Quick Task 004: Fixed success message display
 
 ---
 
@@ -76,6 +77,7 @@
 | 001 | Add /help command for command discovery | 2026-03-12 | 77f9991 | [001-add-help-command](.planning/quick/001-add-help-command/) |
 | 002 | Fix payee display and add multi-currency support | 2026-03-12 | 1d1e39d | [002-fix-payee-and-currency](.planning/quick/002-fix-payee-and-currency/) |
 | 003 | Fix payee names showing as UUID | 2026-03-12 | a45435b | [003-fix-payee-names-uuid](.planning/quick/003-fix-payee-names-uuid/) |
+| 004 | Fix success message with payee name and currency | 2026-03-12 | fed2407 | [004-fix-success-message](.planning/quick/004-fix-success-message/) |
 
 ---
 
