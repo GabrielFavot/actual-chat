@@ -1,6 +1,7 @@
 import { Bot, Context } from 'grammy';
 import { ActualApiService } from '../services/actual-api.js';
 import { NotifierState } from '../services/notifier-state.js';
+import { sessionManager } from './session-manager.js';
 import { formatTransaction } from './message-formatter.js';
 import { InlineKeyboard } from 'grammy';
 
@@ -127,6 +128,9 @@ async function performPoll(
       return;
     }
 
+    // Store transaction in session for callback handling
+    const sessionId = sessionManager.storeTransaction(newestTransaction);
+
     // Build inline keyboard with grouped categories
     const keyboard = new InlineKeyboard();
 
@@ -158,17 +162,16 @@ async function performPoll(
         const cat1 = groupCategories[i];
         const cat2 = groupCategories[i + 1];
 
-        // Store transaction in session for callback handling
-        // Since this is polling (not command), we use transaction ID directly in callback
+        // Use session manager like /transaction command
         keyboard.text(
           cat1.name,
-          `cat_poll_${newestTransaction.id}_${cat1.id}`
+          `cat_${sessionId}_${cat1.id}`
         );
 
         if (cat2) {
           keyboard.text(
             cat2.name,
-            `cat_poll_${newestTransaction.id}_${cat2.id}`
+            `cat_${sessionId}_${cat2.id}`
           );
         }
 
@@ -191,13 +194,13 @@ async function performPoll(
 
         keyboard.text(
           cat1.name,
-          `cat_poll_${newestTransaction.id}_${cat1.id}`
+          `cat_${sessionId}_${cat1.id}`
         );
 
         if (cat2) {
           keyboard.text(
             cat2.name,
-            `cat_poll_${newestTransaction.id}_${cat2.id}`
+            `cat_${sessionId}_${cat2.id}`
           );
         }
 
