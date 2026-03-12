@@ -33,10 +33,17 @@ export interface Payee {
   name: string;
 }
 
+export interface Account {
+  id: string;
+  name: string;
+  offbudget?: boolean;
+}
+
 export class ActualApiService {
   private initialized = false;
   private config: ActualBudgetConfig;
   private payeesCache: Map<string, string> = new Map(); // Cache payee names
+  private accountsCache: Map<string, Account> = new Map(); // Cache accounts
 
   constructor(config: ActualBudgetConfig) {
     this.config = {
@@ -164,6 +171,39 @@ export class ActualApiService {
     }
 
     return this.payeesCache;
+  }
+
+  /**
+   * Get a single account by ID (cached after first call)
+   * @param accountId - ID of the account to retrieve
+   * @returns Account object with id and name
+   * @throws Error if account not found
+   */
+  async getAccount(accountId: string): Promise<Account> {
+    // Check cache first
+    if (this.accountsCache.has(accountId)) {
+      return this.accountsCache.get(accountId)!;
+    }
+
+    // Fetch all accounts if cache is empty
+    const accounts = await actual.getAccounts();
+    
+    // Cache all accounts for future lookups
+    accounts.forEach((acc: any) => {
+      this.accountsCache.set(acc.id, {
+        id: acc.id,
+        name: acc.name,
+        offbudget: acc.offbudget
+      });
+    });
+
+    // Return the requested account
+    const account = this.accountsCache.get(accountId);
+    if (!account) {
+      throw new Error(`Account not found: ${accountId}`);
+    }
+
+    return account;
   }
 
   /**

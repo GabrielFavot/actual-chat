@@ -43,8 +43,18 @@ export async function handleTransactionCommand(
       return;
     }
 
-    // Format transaction message
-    const message = formatTransaction(transaction);
+    // Fetch account name for the transaction
+    let accountName: string | undefined;
+    try {
+      const account = await actualApi.getAccount(transaction.account_id);
+      accountName = account.name;
+    } catch (error) {
+      console.warn(`Could not fetch account name for ${transaction.account_id}:`, error);
+      // Continue without account name - will show "Unknown Account"
+    }
+
+    // Format transaction message with account name
+    const message = formatTransaction(transaction, accountName);
 
     // Store transaction in session (avoid Telegram callback_data size limit)
     const sessionId = sessionManager.storeTransaction(transaction);
