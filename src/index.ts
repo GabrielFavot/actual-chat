@@ -10,6 +10,7 @@ import { Bot } from 'grammy';
 import { ConfigValidator } from './utils/config-validator.js';
 import { authMiddleware } from './middleware/auth.js';
 import { ActualApiService } from './services/actual-api.js';
+import { handleTransactionCommand } from './commands/transaction.js';
 
 // Validate configuration with helpful error messages
 ConfigValidator.validateAndExit();
@@ -73,6 +74,9 @@ console.log('Initializing ActualBudget API...');
         await ctx.reply('Error fetching categories. Check logs.');
       }
     });
+
+    // /transaction command - display first uncategorized transaction with category buttons
+    bot.command('transaction', (ctx) => handleTransactionCommand(ctx, actualApi));
 
     console.log('✓ Bot commands registered\n');
     console.log('🤖 Bot starting... waiting for messages\n');
