@@ -34,7 +34,7 @@
 - **Quick Task 005 Duration:** ~10 min
 - **Quick Task 006 Duration:** ~8 min
 - **Total Quick Tasks:** ~58 min
-- **Last activity:** 2026-03-12 - Quick Task 006: Enhanced /categories command with hierarchy
+- **Last activity:** 2026-03-12 - Quick Task 007: Display category groups in transaction form
 
 ---
 
@@ -82,6 +82,7 @@
 | 004 | Fix success message with payee name and currency | 2026-03-12 | fed2407 | [004-fix-success-message](.planning/quick/004-fix-success-message/) |
 | 005 | Remove currency complexity - simplify to numbers | 2026-03-12 | d4e2140 | [005-remove-currency-complexity](.planning/quick/005-remove-currency-complexity/) |
 | 006 | Review /categories command - display all with hierarchy | 2026-03-12 | 4c9045c | [006-on-va-revoir-la-commandes-de-categories-](.planning/quick/006-on-va-revoir-la-commandes-de-categories-/) |
+| 007 | Display category groups in transaction form | 2026-03-12 | 0fdd25e | [007-display-category-groups-in-transaction-f](.planning/quick/007-display-category-groups-in-transaction-f/) |
 
 ---
 
