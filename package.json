@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node --require ./preload.js dist/index.js",
-    "dev": "ts-node --esm src/index.ts"
+    "dev": "tsx --require ./preload.js src/index.ts"
   },
   "keywords": [
     "telegram",
@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.15.3",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.7.0",
     "typescript": "^5.8.3"
   }
 }
