@@ -15,6 +15,7 @@ export interface Transaction {
   date: string;
   amount: number;
   payee_name?: string;
+  payee?: string; // Alternative name used by API
   category?: string | null;
   account_id: string;
   transfer_id?: string;
@@ -88,6 +89,70 @@ export class ActualApiService {
 
   async getCategories(): Promise<Category[]> {
     return actual.getCategories();
+  }
+
+  /**
+   * Update a transaction's category
+   * @param transactionId - ID of transaction to update
+   * @param categoryId - ID of category to assign
+   * @returns Updated transaction object
+   * @throws Error if transaction or category not found
+   */
+  async updateTransaction(
+    transactionId: string,
+    categoryId: string
+  ): Promise<Transaction> {
+    if (!this.initialized) {
+      throw new Error('API not initialized');
+    }
+
+    // Verify category exists
+    const categories = await this.getCategories();
+    const category = categories.find(c => c.id === categoryId);
+    if (!category) {
+      throw new Error(`Category not found: ${categoryId}`);
+    }
+
+    // Get all transactions to find the one we're updating
+    const accounts = await actual.getAccounts();
+    let targetTransaction: any = null;
+
+    for (const account of accounts) {
+      if (account.offbudget) continue;
+
+      const accountTransactions = await actual.getTransactions(
+        account.id,
+        '1990-01-01',
+        '2030-01-01'
+      );
+
+      const found = accountTransactions.find((t: any) => t.id === transactionId);
+      if (found) {
+        targetTransaction = found;
+        break;
+      }
+    }
+
+    if (!targetTransaction) {
+      throw new Error(`Transaction not found: ${transactionId}`);
+    }
+
+    // Update the transaction with new category
+    await actual.updateTransaction(transactionId, {
+      category: categoryId
+    });
+
+    // Return updated transaction
+    return {
+      id: targetTransaction.id,
+      date: targetTransaction.date,
+      amount: targetTransaction.amount,
+      payee_name: targetTransaction.payee || targetTransaction.payee_name,
+      category: categoryId,
+      account_id: targetTransaction.account_id,
+      transfer_id: targetTransaction.transfer_id,
+      starting_balance_flag: targetTransaction.starting_balance_flag
+    };
   }
 
   async shutdown(): Promise<void> {
