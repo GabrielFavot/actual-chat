@@ -78,26 +78,12 @@ Transaction from <b>${payee}</b> → <b>${categoryName}</b>${amountStr}`;
 }
 
 /**
- * Format category list with hierarchy (groupes + catégories)
+ * Format category list with hierarchy (grouped by category group_id)
  * @param categories - Array of categories from API
- * @param groups - Map of group_id to group name
+ * @param groups - Optional map of group_id to group name (if available)
  * @returns Formatted category list with hierarchy
  */
 export function formatCategoryList(categories: Category[], groups?: Map<string, string>): string {
-  // If no groups provided, just show flat list
-  if (!groups || groups.size === 0) {
-    let result = `📁 <b>Categories</b> (${categories.length} total)\n\n`;
-    
-    // Sort alphabetically for readability
-    const sorted = [...categories].sort((a, b) => a.name.localeCompare(b.name));
-    
-    sorted.forEach((cat, index) => {
-      result += `${index + 1}. ${cat.name}\n`;
-    });
-
-    return result;
-  }
-
   // Build a map of group_id to categories
   const categoryMap = new Map<string, Category[]>();
   categories.forEach(cat => {
@@ -108,21 +94,25 @@ export function formatCategoryList(categories: Category[], groups?: Map<string, 
     categoryMap.get(key)!.push(cat);
   });
 
-  // Sort groups and categories
-  const sortedGroupIds = Array.from(groups.keys()).sort();
+  // Get all group IDs and sort them
+  const groupIds = Array.from(categoryMap.keys()).sort();
   
   // Build the display string with hierarchy
   let result = `📁 <b>Categories</b> (${categories.length} total)\n\n`;
 
-  sortedGroupIds.forEach((groupId, index) => {
-    const groupName = groups.get(groupId);
+  groupIds.forEach((groupId, groupIndex) => {
     const groupCats = categoryMap.get(groupId) || [];
-
-    if (groupName) {
-      result += `<b>${groupName}</b>\n`;
+    
+    // Get group name if available, otherwise use a generic name
+    let groupName = groups?.get(groupId);
+    if (!groupName) {
+      // Use the first category's name as group indicator, or generate a generic name
+      groupName = `Group ${groupIndex + 1}`;
     }
 
-    // Sort categories within group
+    result += `<b>${groupName}</b>\n`;
+
+    // Sort categories within group alphabetically
     const sortedCats = [...groupCats].sort((a, b) => a.name.localeCompare(b.name));
     sortedCats.forEach((cat, catIndex) => {
       const isLast = catIndex === sortedCats.length - 1;
@@ -131,7 +121,7 @@ export function formatCategoryList(categories: Category[], groups?: Map<string, 
     });
 
     // Add spacing between groups
-    if (index < sortedGroupIds.length - 1) {
+    if (groupIndex < groupIds.length - 1) {
       result += '\n';
     }
   });
