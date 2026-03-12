@@ -126,80 +126,19 @@ export class ActualApiService {
    */
   async getCategoryGroups(): Promise<Map<string, string>> {
     try {
-      console.log('🔍 Attempting to fetch category groups...');
-      
-      // Log what's available on actual object
-      console.log('Methods on actual:', Object.keys(actual as any)
-        .filter(k => typeof (actual as any)[k] === 'function')
-        .filter(k => k.toLowerCase().includes('group') || k.toLowerCase().includes('categor'))
-        .slice(0, 20)
-      );
-
-      // Try getCategoryGroups if it exists
-      if (typeof (actual as any).getCategoryGroups === 'function') {
-        console.log('✅ Found getCategoryGroups method');
-        const result = await (actual as any).getCategoryGroups();
-        if (result && Array.isArray(result) && result.length > 0) {
-          const groupMap = new Map<string, string>();
-          result.forEach((group: any) => {
-            if (group.id && group.name) {
-              groupMap.set(group.id, group.name);
-            }
-          });
-          if (groupMap.size > 0) {
-            console.log(`Found ${groupMap.size} category groups`);
-            return groupMap;
+      const result = await (actual as any).getCategoryGroups();
+      if (result && Array.isArray(result) && result.length > 0) {
+        const groupMap = new Map<string, string>();
+        result.forEach((group: any) => {
+          if (group.id && group.name) {
+            groupMap.set(group.id, group.name);
           }
-        }
+        });
+        return groupMap;
       }
-
-      // Try getCategoriesGrouped
-      if (typeof (actual as any).getCategoriesGrouped === 'function') {
-        console.log('✅ Found getCategoriesGrouped method');
-        const result = await (actual as any).getCategoriesGrouped();
-        console.log('getCategoriesGrouped result:', typeof result, Array.isArray(result) ? `[${result.length}]` : '');
-        
-        if (result && Array.isArray(result) && result.length > 0) {
-          const groupMap = new Map<string, string>();
-          result.forEach((group: any) => {
-            if (group.id && group.name) {
-              groupMap.set(group.id, group.name);
-            }
-          });
-          if (groupMap.size > 0) {
-            console.log(`Found ${groupMap.size} groups via getCategoriesGrouped`);
-            return groupMap;
-          }
-        }
-      }
-
-      // Try q() query builder if available
-      if (typeof (actual as any).q === 'function') {
-        console.log('✅ Found q() query builder');
-        try {
-          const result = await (actual as any).q('categorygroups').select('*');
-          console.log('q() categorygroups result:', typeof result);
-          if (result && Array.isArray(result)) {
-            const groupMap = new Map<string, string>();
-            result.forEach((group: any) => {
-              if (group.id && group.name) {
-                groupMap.set(group.id, group.name);
-              }
-            });
-            if (groupMap.size > 0) {
-              console.log(`Found ${groupMap.size} groups via q()`);
-              return groupMap;
-            }
-          }
-        } catch (e) {
-          console.log('q() failed:', (e as Error).message.slice(0, 50));
-        }
-      }
-
-      console.log('❌ Could not find method to fetch category groups');
       return new Map();
     } catch (error) {
-      console.log('Error fetching category groups:', error);
+      console.error('Error fetching category groups:', error);
       return new Map();
     }
   }
