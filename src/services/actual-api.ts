@@ -113,6 +113,14 @@ export class ActualApiService {
   }
 
   /**
+   * Get categories grouped by their group_id
+   * Returns the full hierarchy structure
+   */
+  async getCategoriesGrouped(): Promise<any> {
+    return (actual as any).getCategoriesGrouped?.();
+  }
+
+  /**
    * Get all payees (cached after first call)
    * @returns Map of payee ID to name
    */
