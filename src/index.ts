@@ -1,22 +1,18 @@
-import { Bot } from 'grammy';
+// Polyfill navigator for Node.js environment (required by @actual-app/api)
+if (typeof navigator === 'undefined') {
+  (globalThis as any).navigator = {
+    platform: process.platform === 'win32' ? 'Win32' : 'Linux',
+  };
+}
+
 import 'dotenv/config';
+import { Bot } from 'grammy';
+import { ConfigValidator } from './utils/config-validator.js';
 import { authMiddleware } from './middleware/auth.js';
 import { ActualApiService } from './services/actual-api.js';
 
-// Validate required environment variables at startup
-const REQUIRED_ENV = [
-  'TELEGRAM_BOT_TOKEN',
-  'ACTUAL_SERVER_URL',
-  'ACTUAL_SERVER_PASSWORD',
-  'BUDGET_ID',
-  'AUTHORIZED_USER_IDS'
-];
-
-for (const env of REQUIRED_ENV) {
-  if (!process.env[env]) {
-    throw new Error(`${env} environment variable is required`);
-  }
-}
+// Validate configuration with helpful error messages
+ConfigValidator.validateAndExit();
 
 // Initialize the Telegram bot
 const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN!);
@@ -42,10 +38,11 @@ console.log('Initializing ActualBudget API...');
 // Initialize API and start bot
 (async () => {
   try {
+    console.log('Connecting to ActualBudget...');
     await actualApi.initialize();
-    console.log('ActualBudget API initialized successfully');
+    console.log('✓ ActualBudget API initialized successfully\n');
     
-    console.log('Bot starting...');
+    console.log('Setting up bot commands...');
     
     // /start command
     bot.command('start', async (ctx) => {
@@ -77,10 +74,40 @@ console.log('Initializing ActualBudget API...');
       }
     });
 
+    console.log('✓ Bot commands registered\n');
+    console.log('🤖 Bot starting... waiting for messages\n');
+    
     // Start the bot
     await bot.start();
   } catch (error) {
-    console.error('Failed to initialize bot:', error);
+    console.error('\n❌ Failed to initialize bot\n');
+    
+    if (error instanceof Error) {
+      console.error(`Error: ${error.message}\n`);
+
+      // Helpful hints for common errors
+      if (error.message.includes('ECONNREFUSED')) {
+        console.error('Issue: Cannot connect to ActualBudget server');
+        console.error(`  - Check ACTUAL_SERVER_URL in .env: ${process.env.ACTUAL_SERVER_URL}`);
+        console.error('  - Ensure ActualBudget is running and accessible\n');
+      } else if (error.message.includes('Authentication failed') || error.message.includes('parse-json')) {
+        console.error('Issue: Invalid ActualBudget credentials');
+        console.error('  - Verify ACTUAL_SERVER_PASSWORD is correct');
+        console.error('  - Verify BUDGET_ID exists in ActualBudget');
+        console.error('  - Verify ACTUAL_E2E_PASSWORD if using encryption\n');
+        console.error('How to find BUDGET_ID:');
+        console.error('  1. Open ActualBudget');
+        console.error('  2. Go to Settings');
+        console.error('  3. Enable "Show advanced settings"');
+        console.error('  4. Copy the "Sync ID" value\n');
+      }
+    }
+
+    console.error('Next steps:');
+    console.error('1. Update .env with correct credentials');
+    console.error('2. Run: npm run test:setup');
+    console.error('3. Then: npm start\n');
+
     process.exit(1);
   }
 })();

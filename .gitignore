@@ -1,0 +1,64 @@
+# Environment variables - NEVER commit secrets!
+.env
+.env.local
+.env.*.local
+
+# Node.js dependencies
+node_modules/
+package-lock.json
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+.directory
+
+# Development
+.env.test
+.env.development
+
+# GSD Planning artifacts (temp files only)
+.planning/**/temp/
+.planning/**/debug.md
+
+# Cache
+.cache/
+*.cache
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Temporary files
+*.tmp
+*.temp
+*~.tmp
+
+# Docker (if running locally)
+.docker/
+
+# Session files
+session.json
