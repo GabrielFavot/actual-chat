@@ -59,9 +59,6 @@ export async function handleCategoryCallback(
       categoryId
     );
 
-    // Get budget currency
-    const currency = await actualApi.getBudgetCurrency();
-
     // Get payee name from cache (payee field contains payee ID)
     const payeeMap = await actualApi.getPayeesMap();
     const payeeName = updatedTransaction.payee 
@@ -72,8 +69,7 @@ export async function handleCategoryCallback(
     const successMessage = formatSuccess(
       payeeName,
       category.name,
-      updatedTransaction.amount,
-      currency
+      updatedTransaction.amount
     );
 
     // Delete the original message with buttons
