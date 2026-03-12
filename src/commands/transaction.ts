@@ -1,5 +1,6 @@
 import { Context, InlineKeyboard } from 'grammy';
 import { ActualApiService } from '../services/actual-api.js';
+import { sessionManager } from '../utils/session-manager.js';
 import {
   formatTransaction,
   formatError,
@@ -44,6 +45,9 @@ export async function handleTransactionCommand(
     // Format transaction message
     const message = formatTransaction(transaction);
 
+    // Store transaction in session (avoid Telegram callback_data size limit)
+    const sessionId = sessionManager.storeTransaction(transaction);
+
     // Build inline keyboard with categories
     const keyboard = new InlineKeyboard();
 
@@ -52,17 +56,17 @@ export async function handleTransactionCommand(
       const cat1 = categories[i];
       const cat2 = categories[i + 1];
 
-      // Button 1
+      // Button 1 - callback data: cat_{sessionId}_{categoryId}
       keyboard.text(
         cat1.name,
-        `cat_${cat1.id}_${transaction.id}`
+        `cat_${sessionId}_${cat1.id}`
       );
 
       // Button 2 (if exists)
       if (cat2) {
         keyboard.text(
           cat2.name,
-          `cat_${cat2.id}_${transaction.id}`
+          `cat_${sessionId}_${cat2.id}`
         );
       }
 
