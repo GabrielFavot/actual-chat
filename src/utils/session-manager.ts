@@ -52,12 +52,6 @@ class SessionManager {
     }
   }
 
-  /**
-   * Get all active sessions (for debugging)
-   */
-  getSessions(): number {
-    return this.sessions.size;
-  }
 }
 
 // Export singleton instance
