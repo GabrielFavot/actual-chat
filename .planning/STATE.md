@@ -29,8 +29,9 @@
 - **Cumulative:** ~49 min
 - **Quick Task 001 Duration:** ~10 min
 - **Quick Task 002 Duration:** ~15 min
-- **Total Quick Tasks:** ~25 min
-- **Last activity:** 2026-03-12 - Quick Task 002: Fixed payee display and currency
+- **Quick Task 003 Duration:** ~10 min
+- **Total Quick Tasks:** ~35 min
+- **Last activity:** 2026-03-12 - Quick Task 003: Fixed payee UUID display issue
 
 ---
 
@@ -74,6 +75,7 @@
 |---|-------------|------|--------|-----------|
 | 001 | Add /help command for command discovery | 2026-03-12 | 77f9991 | [001-add-help-command](.planning/quick/001-add-help-command/) |
 | 002 | Fix payee display and add multi-currency support | 2026-03-12 | 1d1e39d | [002-fix-payee-and-currency](.planning/quick/002-fix-payee-and-currency/) |
+| 003 | Fix payee names showing as UUID | 2026-03-12 | a45435b | [003-fix-payee-names-uuid](.planning/quick/003-fix-payee-names-uuid/) |
 
 ---
 
