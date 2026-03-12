@@ -20,8 +20,8 @@ Bot automatically monitors ActualBudget for uncategorized transactions and proac
 
 ### Transaction Selection Strategy
 - **Always send newest:** Each poll cycle, fetch all uncategorized transactions and send the newest one (most recently created)
-- **No state tracking:** Don't track which transactions have been notified. Simple: fetch newest, send it
-- **Re-notification:** If user ignores a transaction (doesn't categorize it), the next poll will send it again if it's still the newest uncategorized one
+- **Track notified transactions:** Use NotifierState to track which transactions have been notified, preventing duplicate notifications. State persists across restarts.
+- **Re-notification:** If user ignores a transaction (doesn't categorize it), it won't be re-notified. Next poll will send the next newest uncategorized transaction.
 
 ### Polling Behavior
 - **Poll overlap prevention:** Only one poll runs at a time (use mutex/lock to prevent concurrent executions)
