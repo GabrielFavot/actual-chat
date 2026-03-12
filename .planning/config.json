@@ -8,19 +8,19 @@
     "active_profile": "balanced",
     "presets": {
       "quality": {
-        "planning": "opencode/glm-4.7-free",
-        "execution": "opencode/glm-4.7-free",
-        "verification": "opencode/glm-4.7-free"
+        "planning": "claude",
+        "execution": "claude",
+        "verification": "claude"
       },
       "balanced": {
-        "planning": "opencode/glm-4.7-free",
-        "execution": "opencode/minimax-m2.1-free",
-        "verification": "opencode/glm-4.7-free"
+        "planning": "claude",
+        "execution": "claude",
+        "verification": "claude"
       },
       "budget": {
-        "planning": "opencode/minimax-m2.1-free",
-        "execution": "opencode/grok-code",
-        "verification": "opencode/minimax-m2.1-free"
+        "planning": "claude",
+        "execution": "claude",
+        "verification": "claude"
       }
     },
     "custom_overrides": {
