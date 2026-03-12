@@ -75,8 +75,8 @@ console.log('Initializing ActualBudget API...');
          const categories = await actualApi.getCategories();
          console.log(`[categories] Got ${categories.length} categories`);
          
-         // Debug: Log first 3 categories to see all fields
-         console.log('[categories] First 3 categories:', JSON.stringify(categories.slice(0, 3), null, 2));
+          // Debug: Log ALL categories to find groups
+          console.log('[categories] ALL categories:', JSON.stringify(categories, null, 2));
          
          if (categories.length === 0) {
            await ctx.reply('❌ No categories available in your budget.');
