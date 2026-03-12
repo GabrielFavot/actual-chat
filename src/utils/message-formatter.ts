@@ -1,4 +1,4 @@
-import { Transaction } from '../services/actual-api.js';
+import { Transaction, Category } from '../services/actual-api.js';
 
 /**
  * Format amount as a number
@@ -75,4 +75,56 @@ export function formatSuccess(
   return `✅ <b>Categorized!</b>
 
 Transaction from <b>${payee}</b> → <b>${categoryName}</b>${amountStr}`;
+}
+
+/**
+ * Format category list with hierarchy (main + subcategories)
+ * @param categories - Array of categories from API
+ * @returns Formatted category list with hierarchy
+ */
+export function formatCategoryList(categories: Category[]): string {
+  // Separate main categories (no group_id) from subcategories
+  const mainCategories = categories.filter(c => !c.group_id);
+  const subCategories = categories.filter(c => c.group_id);
+
+  // Build a map of group_id to subcategories
+  const subCategoryMap = new Map<string, Category[]>();
+  subCategories.forEach(sub => {
+    const key = sub.group_id || '';
+    if (!subCategoryMap.has(key)) {
+      subCategoryMap.set(key, []);
+    }
+    subCategoryMap.get(key)!.push(sub);
+  });
+
+  // Build the display string
+  let result = `📁 <b>Categories</b> (${categories.length} total)\n\n`;
+
+  mainCategories.forEach((main, index) => {
+    // Add main category
+    result += `<b>${main.name}</b>\n`;
+
+    // Add subcategories if they exist
+    const subs = subCategoryMap.get(main.id) || [];
+    subs.forEach((sub, subIndex) => {
+      const isLast = subIndex === subs.length - 1;
+      const prefix = isLast ? '  └─ ' : '  ├─ ';
+      result += `${prefix}${sub.name}\n`;
+    });
+
+    // Add spacing between main categories
+    if (index < mainCategories.length - 1) {
+      result += '\n';
+    }
+  });
+
+  // Add note if there are subcategories without a visible parent
+  const orphanedSubs = subCategories.filter(
+    sub => !mainCategories.find(m => m.id === sub.group_id)
+  );
+  if (orphanedSubs.length > 0) {
+    result += `\n<i>Note: ${orphanedSubs.length} subcategories without visible parent</i>`;
+  }
+
+  return result;
 }
