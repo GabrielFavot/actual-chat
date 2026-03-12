@@ -126,51 +126,44 @@ export class ActualApiService {
    */
   async getCategoryGroups(): Promise<Map<string, string>> {
     try {
-      // Try to query category_groups table from the database
-      try {
-        const db = (actual as any).getDatabase?.();
-        if (db && db.query) {
-          // Use the query API to get groups
-          const result = db.query('SELECT * FROM category_groups');
-          if (result && Array.isArray(result)) {
-            const groupMap = new Map<string, string>();
-            result.forEach((group: any) => {
-              if (group.id && group.name) {
-                groupMap.set(group.id, group.name);
-              }
-            });
-            if (groupMap.size > 0) {
-              console.log(`Found ${groupMap.size} category groups`);
-              return groupMap;
-            }
-          }
-        }
-      } catch (e) {
-        console.log('Database query method failed:', (e as Error).message);
+      const db = (actual as any).getDatabase?.();
+      if (!db) {
+        console.log('Database not accessible');
+        return new Map();
       }
 
-      // Try getCategoriesGrouped - might return structure we can use
-      try {
-        const grouped = await (actual as any).getCategoriesGrouped?.();
-        if (grouped && typeof grouped === 'object') {
-          if (Array.isArray(grouped)) {
-            const groupMap = new Map<string, string>();
-            grouped.forEach((group: any) => {
-              if (group.id && group.name) {
-                groupMap.set(group.id, group.name);
+      console.log('Database methods available:', Object.keys(db).filter(k => typeof db[k] === 'function').slice(0, 10));
+
+      // Try different database query methods
+      const methods = ['query', 'all', 'first', 'queryClean', 'exec'];
+      
+      for (const method of methods) {
+        try {
+          if (typeof db[method] === 'function') {
+            console.log(`Trying db.${method}()...`);
+            const result = await db[method]('SELECT * FROM category_groups');
+            console.log(`db.${method}() returned:`, result ? (Array.isArray(result) ? `array with ${result.length} items` : typeof result) : 'null');
+            
+            if (result && Array.isArray(result) && result.length > 0) {
+              const groupMap = new Map<string, string>();
+              result.forEach((group: any) => {
+                if (group.id && group.name) {
+                  groupMap.set(group.id, group.name);
+                  console.log(`  - ${group.name} (${group.id})`);
+                }
+              });
+              if (groupMap.size > 0) {
+                console.log(`✅ Found ${groupMap.size} category groups via db.${method}()`);
+                return groupMap;
               }
-            });
-            if (groupMap.size > 0) {
-              console.log(`Found ${groupMap.size} groups via getCategoriesGrouped`);
-              return groupMap;
             }
           }
+        } catch (e) {
+          console.log(`  db.${method}() failed:`, (e as Error).message.slice(0, 50));
         }
-      } catch (e) {
-        console.log('getCategoriesGrouped failed:', (e as Error).message);
       }
 
-      console.log('Could not determine category groups - using fallback');
+      console.log('❌ Could not determine category groups - using fallback');
       return new Map();
     } catch (error) {
       console.log('Error fetching category groups:', error);
