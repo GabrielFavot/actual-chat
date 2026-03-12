@@ -52,6 +52,7 @@ export async function startPolling(
 
 /**
  * Perform a single poll cycle
+ * - Syncs bank accounts first (with error tolerance)
  * - Prevents concurrent polls via mutex
  * - Fetches uncategorized transactions
  * - Sends notification if new transaction found
@@ -73,6 +74,17 @@ async function performPoll(
 
   try {
     console.log(`[${new Date().toISOString()}] Starting poll cycle...`);
+
+    // Sync bank accounts before fetching transactions
+    try {
+      await actualApi.syncBankAccounts();
+    } catch (error) {
+      console.warn(
+        '⚠️ Bank sync failed, continuing with existing transactions:',
+        error instanceof Error ? error.message : String(error)
+      );
+      // Continue with poll even if sync fails - we can still use cached transactions
+    }
 
     // Fetch uncategorized transactions
     const transactions = await actualApi.getUncategorizedTransactions();

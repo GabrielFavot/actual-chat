@@ -270,6 +270,26 @@ export class ActualApiService {
     };
   }
 
+  /**
+   * Run bank account sync
+   * Syncs transactions from connected bank accounts
+   * @throws Error if sync fails
+   */
+  async syncBankAccounts(): Promise<void> {
+    if (!this.initialized) {
+      throw new Error('API not initialized');
+    }
+    
+    try {
+      console.log('Starting bank account sync...');
+      await (actual as any).runBankSync?.();
+      console.log('✓ Bank account sync completed');
+    } catch (error) {
+      console.error('Bank account sync failed:', error);
+      throw error;
+    }
+  }
+
   async shutdown(): Promise<void> {
     await actual.shutdown();
     this.initialized = false;
