@@ -87,6 +87,21 @@ export function formatCategoryList(categories: Category[]): string {
   const mainCategories = categories.filter(c => !c.group_id);
   const subCategories = categories.filter(c => c.group_id);
 
+  // If there are no main categories, just show a flat list
+  // (this happens when all categories have group_id but parents aren't included)
+  if (mainCategories.length === 0) {
+    let result = `📁 <b>Categories</b> (${categories.length} total)\n\n`;
+    
+    // Sort alphabetically for readability
+    const sorted = [...categories].sort((a, b) => a.name.localeCompare(b.name));
+    
+    sorted.forEach((cat, index) => {
+      result += `${index + 1}. ${cat.name}\n`;
+    });
+
+    return result;
+  }
+
   // Build a map of group_id to subcategories
   const subCategoryMap = new Map<string, Category[]>();
   subCategories.forEach(sub => {
@@ -97,7 +112,7 @@ export function formatCategoryList(categories: Category[]): string {
     subCategoryMap.get(key)!.push(sub);
   });
 
-  // Build the display string
+  // Build the display string with hierarchy
   let result = `📁 <b>Categories</b> (${categories.length} total)\n\n`;
 
   mainCategories.forEach((main, index) => {
