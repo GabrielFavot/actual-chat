@@ -34,7 +34,7 @@
 - **Quick Task 005 Duration:** ~10 min
 - **Quick Task 006 Duration:** ~8 min
 - **Total Quick Tasks:** ~58 min
-- **Last activity:** 2026-03-12 - Quick Task 007: Display category groups in transaction form
+- **Last activity:** 2026-03-12 - Quick Task 008: Fix account name display in transaction form
 
 ---
 
@@ -83,6 +83,7 @@
 | 005 | Remove currency complexity - simplify to numbers | 2026-03-12 | d4e2140 | [005-remove-currency-complexity](.planning/quick/005-remove-currency-complexity/) |
 | 006 | Review /categories command - display all with hierarchy | 2026-03-12 | 4c9045c | [006-on-va-revoir-la-commandes-de-categories-](.planning/quick/006-on-va-revoir-la-commandes-de-categories-/) |
 | 007 | Display category groups in transaction form | 2026-03-12 | 0fdd25e | [007-display-category-groups-in-transaction-f](.planning/quick/007-display-category-groups-in-transaction-f/) |
+| 008 | Fix account name display in transaction form | 2026-03-12 | 9c6fa5d | [008-fix-account-name-display-in-transaction-](.planning/quick/008-fix-account-name-display-in-transaction-/) |
 
 ---
 
