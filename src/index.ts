@@ -13,6 +13,7 @@ import { ActualApiService } from './services/actual-api.js';
 import { handleTransactionCommand } from './commands/transaction.js';
 import { handleHelpCommand } from './commands/help.js';
 import { handleCategoryCallback } from './handlers/category-callback.js';
+import { formatCategoryList } from './utils/message-formatter.js';
 
 // Validate configuration with helpful error messages
 ConfigValidator.validateAndExit();
@@ -66,16 +67,21 @@ console.log('Initializing ActualBudget API...');
       }
     });
 
-    // /categories command - test fetching categories
-    bot.command('categories', async (ctx) => {
-      try {
-        const categories = await actualApi.getCategories();
-        await ctx.reply(`Found ${categories.length} categories`);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-        await ctx.reply('Error fetching categories. Check logs.');
-      }
-    });
+     // /categories command - display all categories with hierarchy
+     bot.command('categories', async (ctx) => {
+       try {
+         const categories = await actualApi.getCategories();
+         if (categories.length === 0) {
+           await ctx.reply('❌ No categories available in your budget.');
+           return;
+         }
+         const formatted = formatCategoryList(categories);
+         await ctx.reply(formatted, { parse_mode: 'HTML' });
+       } catch (error) {
+         console.error('Error fetching categories:', error);
+         await ctx.reply('❌ Error fetching categories. Check logs.');
+       }
+     });
 
     // /transaction command - display first uncategorized transaction with category buttons
     bot.command('transaction', (ctx) => handleTransactionCommand(ctx, actualApi));
