@@ -67,8 +67,8 @@ This roadmap delivers the bot in 4 phases, moving from foundation to automation.
 4. Connection errors are logged and reported to user
 
 **Plans:**
-- [ ] 02-01-PLAN.md — Install @actual-app/api and create API service
-- [ ] 02-02-PLAN.md — Integrate API into bot with credential validation
+- [x] 02-01-PLAN.md — Install @actual-app/api and create API service
+- [x] 02-02-PLAN.md — Integrate API into bot with credential validation
 
 ---
 
@@ -92,6 +92,11 @@ This roadmap delivers the bot in 4 phases, moving from foundation to automation.
 4. Confirmation message shown after successful categorization
 5. Only one transaction per notification message
 
+**Plans:**
+- [x] 03-01-PLAN.md — Enhance API with updateTransaction
+- [x] 03-02-PLAN.md — Transaction display command with buttons
+- [x] 03-03-PLAN.md — Category button callback handler
+
 ---
 
 ### Phase 4: Automation
@@ -111,15 +116,22 @@ This roadmap delivers the bot in 4 phases, moving from foundation to automation.
 3. Previously notified transactions are not re-notified
 4. Bot persists notification state across restarts
 
+**Plans:**
+- [ ] 04-01-PLAN.md — NotifierState service and PollScheduler
+- [ ] 04-02-PLAN.md — Notification formatting and testing
+
 ---
 
 ## Progress
 
-| Phase | Status | Requirements |
-|-------|--------|--------------|
-| 1 - Authorization | ✓ Complete | 2/2 |
+| Phase | Status | Requirements | Plans |
+|-------|--------|--------------|-------|
+| 1 - Authorization | ✓ Complete | 2/2 | 2/2 |
+| 2 - Integration | ✓ Complete | 3/3 | 2/2 |
+| 3 - User Interface | ✓ Complete | 4/4 | 3/3 |
+| 4 - Automation | ⧖ Planned | 3/3 | 2/2 |
 
-**Total:** 4 phases, 12 requirements
+**Total:** 4 phases, 12 requirements, 9 plans
 
 ---
 
