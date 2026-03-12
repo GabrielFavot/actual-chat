@@ -36,7 +36,6 @@ export interface Payee {
 export class ActualApiService {
   private initialized = false;
   private config: ActualBudgetConfig;
-  private currency: string = 'USD'; // Default to USD
   private payeesCache: Map<string, string> = new Map(); // Cache payee names
 
   constructor(config: ActualBudgetConfig) {
@@ -111,29 +110,6 @@ export class ActualApiService {
 
   async getCategories(): Promise<Category[]> {
     return actual.getCategories();
-  }
-
-  /**
-   * Get budget currency code
-   * @returns Currency code (e.g., "USD", "EUR")
-   */
-  async getBudgetCurrency(): Promise<string> {
-    if (this.currency !== 'USD') {
-      return this.currency; // Return cached value
-    }
-
-    try {
-      const accounts = await actual.getAccounts();
-      // Get currency from first account
-      if (accounts.length > 0 && (accounts[0] as any).currency) {
-        this.currency = (accounts[0] as any).currency;
-        return this.currency;
-      }
-    } catch (error) {
-      console.log('Could not fetch budget currency, defaulting to USD');
-    }
-
-    return 'USD';
   }
 
   /**
