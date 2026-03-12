@@ -7,8 +7,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node --require ./preload.js dist/index.js",
-    "dev": "ts-node --esm src/index.ts",
-    "test:setup": "npm run build && node --require ./preload.js test-setup.js"
+    "dev": "ts-node --esm src/index.ts"
   },
   "keywords": [
     "telegram",
