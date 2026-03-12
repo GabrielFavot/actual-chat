@@ -69,19 +69,30 @@ console.log('Initializing ActualBudget API...');
 
      // /categories command - display all categories with hierarchy
      bot.command('categories', async (ctx) => {
+       console.log('[categories] Command received');
        try {
+         console.log('[categories] Fetching categories...');
          const categories = await actualApi.getCategories();
+         console.log(`[categories] Got ${categories.length} categories`);
+         
          if (categories.length === 0) {
            await ctx.reply('❌ No categories available in your budget.');
            return;
          }
          
+         console.log('[categories] Fetching category groups...');
          // Get category groups for hierarchy
          const groups = await actualApi.getCategoryGroups();
+         console.log(`[categories] Got ${groups.size} groups`);
+         
+         console.log('[categories] Formatting categories list...');
          const formatted = formatCategoryList(categories, groups);
+         console.log('[categories] Sending formatted message...');
+         
          await ctx.reply(formatted, { parse_mode: 'HTML' });
+         console.log('[categories] Done!');
        } catch (error) {
-         console.error('Error fetching categories:', error);
+         console.error('[categories] ERROR:', error);
          await ctx.reply('❌ Error fetching categories. Check logs.');
        }
      });
