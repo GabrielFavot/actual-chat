@@ -117,8 +117,8 @@ This roadmap delivers the bot in 4 phases, moving from foundation to automation.
 4. Bot persists notification state across restarts
 
 **Plans:**
-- [ ] 04-01-PLAN.md — NotifierState service and PollScheduler
-- [ ] 04-02-PLAN.md — Notification formatting and testing
+- [x] 04-01-PLAN.md — NotifierState service and PollScheduler (Complete)
+- [x] 04-02-PLAN.md — Notification formatting and testing (Complete)
 
 ---
 
@@ -129,7 +129,7 @@ This roadmap delivers the bot in 4 phases, moving from foundation to automation.
 | 1 - Authorization | ✓ Complete | 2/2 | 2/2 |
 | 2 - Integration | ✓ Complete | 3/3 | 2/2 |
 | 3 - User Interface | ✓ Complete | 4/4 | 3/3 |
-| 4 - Automation | ⧖ Planned | 3/3 | 2/2 |
+| 4 - Automation | ✓ Complete | 3/3 | 2/2 |
 
 **Total:** 4 phases, 12 requirements, 9 plans
 
