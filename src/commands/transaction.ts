@@ -42,8 +42,11 @@ export async function handleTransactionCommand(
       return;
     }
 
+    // Get budget currency
+    const currency = await actualApi.getBudgetCurrency();
+
     // Format transaction message
-    const message = formatTransaction(transaction);
+    const message = formatTransaction(transaction, currency);
 
     // Store transaction in session (avoid Telegram callback_data size limit)
     const sessionId = sessionManager.storeTransaction(transaction);

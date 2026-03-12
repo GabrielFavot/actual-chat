@@ -1,28 +1,56 @@
 import { Transaction } from '../services/actual-api.js';
 
 /**
+ * Currency symbol mapping
+ */
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  'USD': '$',
+  'EUR': '€',
+  'GBP': '£',
+  'JPY': '¥',
+  'CHF': 'CHF',
+  'CAD': 'C$',
+  'AUD': 'A$',
+  'NZD': 'NZ$',
+  'INR': '₹',
+  'CNY': '¥',
+  'SEK': 'kr',
+  'NOK': 'kr',
+  'DKK': 'kr',
+};
+
+/**
  * Format amount as currency
  * @param amount - Amount in cents (from API)
- * @returns Formatted currency string (e.g., "-$5.50")
+ * @param currency - Currency code (USD, EUR, etc.)
+ * @returns Formatted currency string (e.g., "-€5,50" or "-$5.50")
  */
-export function formatAmount(amount: number): string {
+export function formatAmount(amount: number, currency: string = 'USD'): string {
   const absAmount = Math.abs(amount) / 100;
   const sign = amount < 0 ? '-' : '+';
-  return `${sign}$${absAmount.toFixed(2)}`;
+  const symbol = CURRENCY_SYMBOLS[currency] || currency;
+  
+  // Use comma for decimal in EUR, dot for others
+  const decimalSeparator = currency === 'EUR' ? ',' : '.';
+  const formattedAmount = absAmount.toFixed(2).replace('.', decimalSeparator);
+  
+  return `${sign}${symbol}${formattedAmount}`;
 }
 
 /**
  * Format transaction for display in Telegram
  * @param transaction - Transaction object from API
+ * @param currency - Currency code (USD, EUR, etc.)
  * @param accountName - Optional account name (if available)
  * @returns Formatted message string
  */
 export function formatTransaction(
   transaction: Transaction,
+  currency: string = 'USD',
   accountName?: string
 ): string {
   const payee = transaction.payee_name || transaction.payee || 'Unknown';
-  const amount = formatAmount(transaction.amount);
+  const amount = formatAmount(transaction.amount, currency);
   const account = accountName || 'Unknown Account';
 
   return `📝 <b>Categorize Transaction</b>
@@ -63,10 +91,18 @@ export function formatError(error: Error | string): string {
  * Format success message after categorization
  * @param payee - Payee name
  * @param categoryName - Category name selected
+ * @param amount - Optional amount (in cents)
+ * @param currency - Optional currency code
  * @returns Success message
  */
-export function formatSuccess(payee: string, categoryName: string): string {
+export function formatSuccess(
+  payee: string,
+  categoryName: string,
+  amount?: number,
+  currency: string = 'USD'
+): string {
+  const amountStr = amount ? ` • ${formatAmount(amount, currency)}` : '';
   return `✅ <b>Categorized!</b>
 
-Transaction from <b>${payee}</b> → <b>${categoryName}</b>`;
+Transaction from <b>${payee}</b> → <b>${categoryName}</b>${amountStr}`;
 }
