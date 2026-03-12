@@ -2,7 +2,7 @@ import { Bot } from 'grammy';
 import { ActualApiService } from '../services/actual-api.js';
 import { NotifierState } from '../services/notifier-state.js';
 import { sessionManager } from './session-manager.js';
-import { formatTransaction, buildCategoryKeyboard } from './message-formatter.js';
+import { formatTransaction, buildGroupKeyboard } from './message-formatter.js';
 
 /**
  * PollScheduler: Automated polling for uncategorized transactions
@@ -142,8 +142,8 @@ async function performPoll(
     // Store transaction in session for callback handling
     const sessionId = sessionManager.storeTransaction(newestTransaction);
 
-    // Build inline keyboard with grouped categories
-    const keyboard = buildCategoryKeyboard(categories, categoryGroups, sessionId);
+    // Build group-selection keyboard (step 1 of 2-step flow)
+    const keyboard = buildGroupKeyboard(categories, categoryGroups, sessionId);
 
     // Send notification with keyboard
     await bot.api.sendMessage(authorizedUserId, message, {

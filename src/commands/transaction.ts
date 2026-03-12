@@ -4,7 +4,7 @@ import { sessionManager } from '../utils/session-manager.js';
 import {
   formatTransaction,
   formatError,
-  buildCategoryKeyboard,
+  buildGroupKeyboard,
 } from '../utils/message-formatter.js';
 
 /**
@@ -59,8 +59,8 @@ export async function handleTransactionCommand(
     // Store transaction in session (avoid Telegram callback_data size limit)
     const sessionId = sessionManager.storeTransaction(transaction);
 
-    // Build inline keyboard with grouped categories
-    const keyboard = buildCategoryKeyboard(categories, categoryGroups, sessionId);
+    // Build group-selection keyboard (step 1 of 2-step flow)
+    const keyboard = buildGroupKeyboard(categories, categoryGroups, sessionId);
 
     // Send message with keyboard
     await ctx.reply(message, {
