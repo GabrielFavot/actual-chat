@@ -59,11 +59,17 @@ export async function handleCategoryCallback(
       categoryId
     );
 
-    // Get payee name
+    // Get payee name and currency
     const payeeName = updatedTransaction.payee_name || updatedTransaction.payee || 'Unknown';
+    const currency = await actualApi.getBudgetCurrency();
 
     // Format success message
-    const successMessage = formatSuccess(payeeName, category.name);
+    const successMessage = formatSuccess(
+      payeeName,
+      category.name,
+      updatedTransaction.amount,
+      currency
+    );
 
     // Delete the original message with buttons
     try {

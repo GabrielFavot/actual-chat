@@ -28,9 +28,16 @@ export interface Category {
   group_id?: string;
 }
 
+export interface Payee {
+  id: string;
+  name: string;
+}
+
 export class ActualApiService {
   private initialized = false;
   private config: ActualBudgetConfig;
+  private currency: string = 'USD'; // Default to USD
+  private payeesCache: Map<string, string> = new Map(); // Cache payee names
 
   constructor(config: ActualBudgetConfig) {
     this.config = {
@@ -65,6 +72,7 @@ export class ActualApiService {
 
   async getUncategorizedTransactions(): Promise<Transaction[]> {
     const accounts = await actual.getAccounts();
+    const payeesMap = await this.getPayeesMap();
     let transactions: any[] = [];
 
     for (const account of accounts) {
@@ -80,15 +88,73 @@ export class ActualApiService {
     }
 
     // Filter: no category, not transfer, not starting balance
-    return transactions.filter(t =>
+    const filtered = transactions.filter(t =>
       !t.category &&
       !t.transfer_id &&
       !t.starting_balance_flag
     );
+
+    // Map to our Transaction interface and populate payee names
+    return filtered.map(t => ({
+      id: t.id,
+      date: t.date,
+      amount: t.amount,
+      payee_name: t.payee_id ? payeesMap.get(t.payee_id) : (t.payee || 'Unknown'),
+      category: t.category,
+      account_id: t.account_id,
+      transfer_id: t.transfer_id,
+      starting_balance_flag: t.starting_balance_flag
+    }));
   }
 
   async getCategories(): Promise<Category[]> {
     return actual.getCategories();
+  }
+
+  /**
+   * Get budget currency code
+   * @returns Currency code (e.g., "USD", "EUR")
+   */
+  async getBudgetCurrency(): Promise<string> {
+    if (this.currency !== 'USD') {
+      return this.currency; // Return cached value
+    }
+
+    try {
+      const accounts = await actual.getAccounts();
+      // Get currency from first account
+      if (accounts.length > 0 && (accounts[0] as any).currency) {
+        this.currency = (accounts[0] as any).currency;
+        return this.currency;
+      }
+    } catch (error) {
+      console.log('Could not fetch budget currency, defaulting to USD');
+    }
+
+    return 'USD';
+  }
+
+  /**
+   * Get all payees (cached after first call)
+   * @returns Map of payee ID to name
+   */
+  async getPayeesMap(): Promise<Map<string, string>> {
+    if (this.payeesCache.size > 0) {
+      return this.payeesCache; // Return cached payees
+    }
+
+    try {
+      const payees = await actual.getPayees?.();
+      if (Array.isArray(payees)) {
+        payees.forEach((payee: any) => {
+          this.payeesCache.set(payee.id, payee.name);
+        });
+      }
+    } catch (error) {
+      console.log('Could not fetch payees:', error);
+    }
+
+    return this.payeesCache;
   }
 
   /**
