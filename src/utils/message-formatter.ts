@@ -33,7 +33,7 @@ export function formatTransaction(
 <b>Amount:</b> ${amount}
 <b>Account:</b> ${account}
 
-Select a category from the buttons below:`;
+Select a category group:`;
 }
 
 /**
@@ -79,80 +79,98 @@ Transaction from <b>${payee}</b> → <b>${categoryName}</b>${amountStr}`;
 }
 
 /**
- * Build an InlineKeyboard with categories grouped by category group.
- * Shared between the /transaction command and the poll scheduler.
+ * Step 1 of 2-step categorization: build a keyboard with one button per category group.
+ * Tapping a group triggers a grp_ callback which edits the message to show that group's categories.
  *
  * @param categories - All available categories
  * @param categoryGroups - Map of group_id to group name
  * @param sessionId - Session ID used as prefix in callback_data
- * @returns Configured InlineKeyboard instance
+ * @returns InlineKeyboard with one button per group (one per row)
  */
-export function buildCategoryKeyboard(
+export function buildGroupKeyboard(
   categories: Category[],
   categoryGroups: Map<string, string>,
   sessionId: string
 ): InlineKeyboard {
   const keyboard = new InlineKeyboard();
 
-  const categoriesByGroup = new Map<string, Category[]>();
-  const ungroupedCategories: Category[] = [];
+  // Collect unique group IDs that have at least one category
+  const groupIds = new Set<string>();
+  let hasUngrouped = false;
 
   for (const category of categories) {
     if (category.group_id) {
-      if (!categoriesByGroup.has(category.group_id)) {
-        categoriesByGroup.set(category.group_id, []);
-      }
-      categoriesByGroup.get(category.group_id)!.push(category);
+      groupIds.add(category.group_id);
     } else {
-      ungroupedCategories.push(category);
+      hasUngrouped = true;
     }
   }
 
-  for (const [groupId, groupCategories] of categoriesByGroup.entries()) {
+  for (const groupId of groupIds) {
     const groupName = categoryGroups.get(groupId) || groupId;
-
-    keyboard.text(`📁 ${groupName}`, `group_${groupId}`);
-    keyboard.row();
-
-    for (let i = 0; i < groupCategories.length; i += 2) {
-      const cat1 = groupCategories[i];
-      const cat2 = groupCategories[i + 1];
-
-      keyboard.text(cat1.name, `cat_${sessionId}_${cat1.id}`);
-
-      if (cat2) {
-        keyboard.text(cat2.name, `cat_${sessionId}_${cat2.id}`);
-      }
-
-      if (i + 2 < groupCategories.length) {
-        keyboard.row();
-      }
-    }
-
+    keyboard.text(`📁 ${groupName}`, `grp_${sessionId}_${groupId}`);
     keyboard.row();
   }
 
-  if (ungroupedCategories.length > 0) {
-    keyboard.text('📁 Other', `group_uncategorized`);
+  if (hasUngrouped) {
+    keyboard.text('📁 Other', `grp_${sessionId}_ungrouped`);
     keyboard.row();
-
-    for (let i = 0; i < ungroupedCategories.length; i += 2) {
-      const cat1 = ungroupedCategories[i];
-      const cat2 = ungroupedCategories[i + 1];
-
-      keyboard.text(cat1.name, `cat_${sessionId}_${cat1.id}`);
-
-      if (cat2) {
-        keyboard.text(cat2.name, `cat_${sessionId}_${cat2.id}`);
-      }
-
-      if (i + 2 < ungroupedCategories.length) {
-        keyboard.row();
-      }
-    }
   }
 
   return keyboard;
+}
+
+/**
+ * Step 2 of 2-step categorization: build a keyboard with the categories of a single group.
+ * Includes a ← Back button to return to the group list.
+ *
+ * @param categories - All available categories (will be filtered by groupId)
+ * @param groupId - The group to display ('ungrouped' for categories without a group)
+ * @param groupName - Display name of the group
+ * @param sessionId - Session ID used as prefix in callback_data
+ * @returns InlineKeyboard with category buttons (2 per row) + Back button
+ */
+export function buildGroupCategoryKeyboard(
+  categories: Category[],
+  groupId: string,
+  groupName: string,
+  sessionId: string
+): InlineKeyboard {
+  const keyboard = new InlineKeyboard();
+
+  const groupCategories =
+    groupId === 'ungrouped'
+      ? categories.filter((c) => !c.group_id)
+      : categories.filter((c) => c.group_id === groupId);
+
+  for (let i = 0; i < groupCategories.length; i += 2) {
+    const cat1 = groupCategories[i];
+    const cat2 = groupCategories[i + 1];
+
+    keyboard.text(cat1.name, `cat_${sessionId}_${cat1.id}`);
+    if (cat2) {
+      keyboard.text(cat2.name, `cat_${sessionId}_${cat2.id}`);
+    }
+    keyboard.row();
+  }
+
+  // Back button to return to group list
+  keyboard.text('← Back', `back_${sessionId}`);
+
+  return keyboard;
+}
+
+/**
+ * @deprecated Use buildGroupKeyboard() for 2-step flow instead.
+ * Build an InlineKeyboard with all categories grouped by category group (flat, single message).
+ * Kept for reference — replaced by 2-step flow to handle large category sets.
+ */
+export function buildCategoryKeyboard(
+  categories: Category[],
+  categoryGroups: Map<string, string>,
+  sessionId: string
+): InlineKeyboard {
+  return buildGroupKeyboard(categories, categoryGroups, sessionId);
 }
 
 /**
