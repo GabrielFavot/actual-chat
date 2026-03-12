@@ -27,7 +27,8 @@
 - **Phase 3 Plan 3 Duration:** ~15 min
 - **Phase 3 Total:** ~45 min
 - **Cumulative:** ~49 min
-- **Last activity:** 2026-03-12 - Completed Phase 3 (User Interface)
+- **Quick Task 001 Duration:** ~10 min
+- **Last activity:** 2026-03-12 - Quick Task 001: Added /help command
 
 ---
 
@@ -64,6 +65,12 @@
 - Telegram bot token required (user must create via @BotFather)
 - AUTHORIZED_USER_IDS must be set in environment
 - ACTUAL_SERVER_URL, ACTUAL_SERVER_PASSWORD, BUDGET_ID required for ActualBudget connection
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 001 | Add /help command for command discovery | 2026-03-12 | 77f9991 | [001-add-help-command](.planning/quick/001-add-help-command/) |
 
 ---
 
