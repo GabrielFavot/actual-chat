@@ -1,9 +1,14 @@
 # State: ActualBudget Telegram Notifier
 
-**Project:** ActualBudget Telegram Notifier  
-**Core Value:** Get transactions categorized with minimal friction — 2 taps and done, without opening Actual.  
-**Current Phase:** 2 - Integration  
-**Status:** In progress
+**Project:** ActualBudget Telegram Notifier
+**Core Value:** Get transactions categorized with minimal friction — 2 taps and done, without opening Actual.
+
+## Project Reference
+
+See: `.planning/PROJECT.md` (updated 2026-03-12)
+
+**Core value:** Get transactions categorized with minimal friction — 2 taps and done, without opening Actual.
+**Current focus:** Planning next milestone (v2)
 
 ---
 
@@ -11,10 +16,10 @@
 
 | Attribute | Value |
 |-----------|-------|
-| Current Phase | 4 of 4 (Automation) |
-| Plan | 04-02 complete, phase complete, all phases complete |
-| Status | Complete - All phases delivered |
-| Progress | ████████████ 100% (9/9 plans complete) |
+| Milestone | v1.0 shipped ✅ |
+| Current Phase | — (between milestones) |
+| Status | Ready to plan v2 |
+| Progress | ████████████ 100% v1.0 complete |
 
 ---
 
@@ -35,7 +40,7 @@
 - **Quick Task 005 Duration:** ~10 min
 - **Quick Task 006 Duration:** ~8 min
 - **Total Quick Tasks:** ~58 min
-- **Last activity:** 2026-03-12 - Phase 4 Plan 01: Automated polling and notification state
+- **Last activity:** 2026-03-12 — v1.0 milestone complete and archived
 
 ---
 
@@ -51,7 +56,7 @@
 | Automation last | Build manual flow first, then automate | Approved |
 | ESM modules for grammY | Required for grammY v1.x compatibility | Approved |
 | TELEGRAM_BOT_TOKEN validation | Fails fast if env var missing | Approved |
-| AUTHORIZED_USER_IDS validation | Required at startup, fails if missing | Approved |
+| TELEGRAM_USER_ID (single user) | Solo tool — simplified from multi-user list | Approved |
 | Silent ignore for unauthorized | Security best practice - no response | Approved |
 | @actual-app/api library | Official ActualBudget client, verified by actual-ai project | Approved |
 | Service wrapper pattern | ActualApiService class enables testing and extensibility | Approved |
@@ -76,9 +81,7 @@
 
 ### Blockers
 
-- Telegram bot token required (user must create via @BotFather)
-- AUTHORIZED_USER_IDS must be set in environment
-- ACTUAL_SERVER_URL, ACTUAL_SERVER_PASSWORD, BUDGET_ID required for ActualBudget connection
+*(none — v1.0 is shipped)*
 
 ### Quick Tasks Completed
 
@@ -98,10 +101,10 @@
 ## Session Continuity
 
 **Last session:** 2026-03-12
-**Stopped at:** Completed Phase 4 (Automation) - All phases delivered
+**Stopped at:** v1.0 milestone archived and tagged
 **Resume file:** None
 
-**Next:** Phase completion and milestone verification
+**Next:** `/gsd-new-milestone` to plan v2
 
 ---
 
