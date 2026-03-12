@@ -32,8 +32,9 @@
 - **Quick Task 003 Duration:** ~10 min
 - **Quick Task 004 Duration:** ~5 min
 - **Quick Task 005 Duration:** ~10 min
-- **Total Quick Tasks:** ~50 min
-- **Last activity:** 2026-03-12 - Quick Task 005: Simplified currency handling
+- **Quick Task 006 Duration:** ~8 min
+- **Total Quick Tasks:** ~58 min
+- **Last activity:** 2026-03-12 - Quick Task 006: Enhanced /categories command with hierarchy
 
 ---
 
@@ -80,6 +81,7 @@
 | 003 | Fix payee names showing as UUID | 2026-03-12 | a45435b | [003-fix-payee-names-uuid](.planning/quick/003-fix-payee-names-uuid/) |
 | 004 | Fix success message with payee name and currency | 2026-03-12 | fed2407 | [004-fix-success-message](.planning/quick/004-fix-success-message/) |
 | 005 | Remove currency complexity - simplify to numbers | 2026-03-12 | d4e2140 | [005-remove-currency-complexity](.planning/quick/005-remove-currency-complexity/) |
+| 006 | Review /categories command - display all with hierarchy | 2026-03-12 | 4c9045c | [006-on-va-revoir-la-commandes-de-categories-](.planning/quick/006-on-va-revoir-la-commandes-de-categories-/) |
 
 ---
 
