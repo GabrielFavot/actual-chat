@@ -124,12 +124,38 @@ export class ConfigValidator {
   }
 
   /**
+   * Validate currency configuration
+   */
+  validateCurrency(): ConfigError[] {
+    const errors: ConfigError[] = [];
+
+    // CURRENCY is optional, default to USD
+    if (process.env.CURRENCY) {
+      const validCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'CHF', 'CAD', 'AUD', 'NZD', 'INR', 'CNY', 'SEK', 'NOK', 'DKK'];
+      
+      if (!validCurrencies.includes(process.env.CURRENCY)) {
+        errors.push({
+          variable: 'CURRENCY',
+          missing: false,
+          value: process.env.CURRENCY,
+          error: `Invalid currency code - must be one of: ${validCurrencies.join(', ')}`,
+          help: 'Use standard 3-letter currency code',
+          example: 'CURRENCY=EUR',
+        });
+      }
+    }
+
+    return errors;
+  }
+
+  /**
    * Validate all configuration
    */
   validateAll(): ConfigError[] {
     return [
       ...this.validateTelegram(),
       ...this.validateActualBudget(),
+      ...this.validateCurrency(),
     ];
   }
 
