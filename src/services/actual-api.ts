@@ -126,53 +126,51 @@ export class ActualApiService {
    */
   async getCategoryGroups(): Promise<Map<string, string>> {
     try {
-      // Try different methods to get groups
-      
-      // Method 1: Try getCategoriesGrouped - might return structure we can use
-      const grouped = await (actual as any).getCategoriesGrouped?.();
-      if (grouped && typeof grouped === 'object') {
-        console.log('getCategoriesGrouped returned:', typeof grouped, Array.isArray(grouped) ? 'array' : 'object');
-        
-        // If it's an array or has the structure we need
-        if (Array.isArray(grouped)) {
-          const groupMap = new Map<string, string>();
-          grouped.forEach((group: any) => {
-            if (group.id && group.name) {
-              groupMap.set(group.id, group.name);
+      // Try to query category_groups table from the database
+      try {
+        const db = (actual as any).getDatabase?.();
+        if (db && db.query) {
+          // Use the query API to get groups
+          const result = db.query('SELECT * FROM category_groups');
+          if (result && Array.isArray(result)) {
+            const groupMap = new Map<string, string>();
+            result.forEach((group: any) => {
+              if (group.id && group.name) {
+                groupMap.set(group.id, group.name);
+              }
+            });
+            if (groupMap.size > 0) {
+              console.log(`Found ${groupMap.size} category groups`);
+              return groupMap;
             }
-          });
-          if (groupMap.size > 0) return groupMap;
-        }
-      }
-
-      // Method 2: Try to infer groups from categories themselves
-      // Get all categories and build groups map from unique group_ids
-      const categories = await this.getCategories();
-      const groupIds = new Set<string>();
-      categories.forEach(cat => {
-        if (cat.group_id) {
-          groupIds.add(cat.group_id);
-        }
-      });
-
-      // If we found group_ids, try to get their names using individual queries
-      if (groupIds.size > 0) {
-        const groupMap = new Map<string, string>();
-        for (const groupId of groupIds) {
-          try {
-            // Try to get the group (might work with query API)
-            const group = await (actual as any).getCategory?.(groupId);
-            if (group && group.name) {
-              groupMap.set(groupId, group.name);
-            }
-          } catch (e) {
-            // If that fails, we'll use the group_id as fallback
           }
         }
-        return groupMap;
+      } catch (e) {
+        console.log('Database query method failed:', (e as Error).message);
       }
 
-      console.log('Could not determine category groups');
+      // Try getCategoriesGrouped - might return structure we can use
+      try {
+        const grouped = await (actual as any).getCategoriesGrouped?.();
+        if (grouped && typeof grouped === 'object') {
+          if (Array.isArray(grouped)) {
+            const groupMap = new Map<string, string>();
+            grouped.forEach((group: any) => {
+              if (group.id && group.name) {
+                groupMap.set(group.id, group.name);
+              }
+            });
+            if (groupMap.size > 0) {
+              console.log(`Found ${groupMap.size} groups via getCategoriesGrouped`);
+              return groupMap;
+            }
+          }
+        }
+      } catch (e) {
+        console.log('getCategoriesGrouped failed:', (e as Error).message);
+      }
+
+      console.log('Could not determine category groups - using fallback');
       return new Map();
     } catch (error) {
       console.log('Error fetching category groups:', error);
