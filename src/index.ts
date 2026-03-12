@@ -11,6 +11,7 @@ import { ConfigValidator } from './utils/config-validator.js';
 import { authMiddleware } from './middleware/auth.js';
 import { ActualApiService } from './services/actual-api.js';
 import { handleTransactionCommand } from './commands/transaction.js';
+import { handleHelpCommand } from './commands/help.js';
 import { handleCategoryCallback } from './handlers/category-callback.js';
 
 // Validate configuration with helpful error messages
@@ -78,6 +79,9 @@ console.log('Initializing ActualBudget API...');
 
     // /transaction command - display first uncategorized transaction with category buttons
     bot.command('transaction', (ctx) => handleTransactionCommand(ctx, actualApi));
+
+    // /help command - show available commands
+    bot.command('help', (ctx) => handleHelpCommand(ctx));
 
     // Category button callback handler
     bot.on('callback_query:data', (ctx) => handleCategoryCallback(ctx, actualApi));
