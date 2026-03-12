@@ -21,7 +21,7 @@ A Telegram bot that monitors your self-hosted ActualBudget instance and notifies
 
 2. **Get credentials:**
    - `TELEGRAM_BOT_TOKEN` - from @BotFather on Telegram
-   - `AUTHORIZED_USER_IDS` - your Telegram ID (get it by sending `/start` to your bot)
+   - `TELEGRAM_USER_ID` - your Telegram ID (get it by sending `/start` to your bot)
    - `ACTUAL_SERVER_URL` - where ActualBudget runs (e.g., `http://actual:5006`)
    - `ACTUAL_SERVER_PASSWORD` - your ActualBudget sync password
    - `BUDGET_ID` - from ActualBudget Settings → Show advanced settings → Sync ID
@@ -34,7 +34,7 @@ A Telegram bot that monitors your self-hosted ActualBudget instance and notifies
    Fill with your values:
    ```env
    TELEGRAM_BOT_TOKEN=your_token_here
-   AUTHORIZED_USER_IDS=your_user_id
+    TELEGRAM_USER_ID=your_user_id
    ACTUAL_SERVER_URL=http://actual:5006
    ACTUAL_SERVER_PASSWORD=your_password
    BUDGET_ID=your_budget_id
@@ -86,7 +86,7 @@ npm start          # Start bot
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `TELEGRAM_BOT_TOKEN` | Yes | Token from @BotFather |
-| `AUTHORIZED_USER_IDS` | Yes | Your Telegram user ID |
+| `TELEGRAM_USER_ID` | Yes | Your Telegram user ID |
 | `ACTUAL_SERVER_URL` | Yes | ActualBudget server URL |
 | `ACTUAL_SERVER_PASSWORD` | Yes | Server sync password |
 | `BUDGET_ID` | Yes | Budget ID from settings |
@@ -103,7 +103,7 @@ npm start          # Start bot
 
 **Bot doesn't respond:**
 - Verify `TELEGRAM_BOT_TOKEN` is correct
-- Verify your ID is in `AUTHORIZED_USER_IDS`
+- Verify your ID matches `TELEGRAM_USER_ID`
 - Check bot is running (should see "Bot starting..." message)
 
 ## License

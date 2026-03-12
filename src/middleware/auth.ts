@@ -1,36 +1,32 @@
-import { Context, NextFunction, MiddlewareFn } from 'grammy';
+import { Context, MiddlewareFn } from 'grammy';
 import { logUnauthorizedAttempt } from '../utils/logger.js';
 
 /**
- * Parse and validate AUTHORIZED_USER_IDS environment variable
+ * Parse and validate TELEGRAM_USER_ID environment variable
  */
-function parseAuthorizedUserIds(): number[] {
-  const envVar = process.env.AUTHORIZED_USER_IDS;
+function parseAuthorizedUserId(): number {
+  const envVar = process.env.TELEGRAM_USER_ID;
 
   if (!envVar) {
-    throw new Error('AUTHORIZED_USER_IDS environment variable is required');
+    throw new Error('TELEGRAM_USER_ID environment variable is required');
   }
 
-  const ids = envVar.split(',').map((id) => {
-    const trimmed = id.trim();
-    const num = Number(trimmed);
-    if (isNaN(num)) {
-      throw new Error(`Invalid user ID in AUTHORIZED_USER_IDS: "${trimmed}" - must be a number`);
-    }
-    return num;
-  });
+  const num = Number(envVar.trim());
+  if (isNaN(num)) {
+    throw new Error(`Invalid TELEGRAM_USER_ID: "${envVar.trim()}" - must be a number`);
+  }
 
-  return ids;
+  return num;
 }
 
 // Parse and validate at module load time
-export const authorizedUserIds: number[] = parseAuthorizedUserIds();
+export const authorizedUserId: number = parseAuthorizedUserId();
 
 /**
  * Check if a user ID is authorized
  */
 export function isAuthorized(userId: number): boolean {
-  return authorizedUserIds.includes(userId);
+  return userId === authorizedUserId;
 }
 
 /**
@@ -38,7 +34,6 @@ export function isAuthorized(userId: number): boolean {
  * Silently ignores unauthorized users but logs the attempt
  */
 export const authMiddleware: MiddlewareFn<Context> = async (ctx, next) => {
-  // Get user from context
   const user = ctx.from;
 
   // If no user, ignore (shouldn't happen in normal bot usage)
@@ -46,14 +41,10 @@ export const authMiddleware: MiddlewareFn<Context> = async (ctx, next) => {
     return;
   }
 
-  // Check if user is authorized
   if (!isAuthorized(user.id)) {
-    // Log the unauthorized attempt for security monitoring
     logUnauthorizedAttempt(user.id, user.username, user.first_name);
-    // Silently ignore - no response sent
     return;
   }
 
-  // User is authorized, continue to next middleware/handler
   await next();
 };
