@@ -95,13 +95,15 @@ export class ActualApiService {
     );
 
     // Map to our Transaction interface and populate payee names
-    return filtered.map(t => ({
+    return filtered.map((t: any) => ({
       id: t.id,
       date: t.date,
       amount: t.amount,
-      payee_name: t.payee_id ? payeesMap.get(t.payee_id) : (t.payee || 'Unknown'),
+      payee_name: t.payee 
+        ? payeesMap.get(t.payee) // Try to get name from cached payees
+        : (t.imported_payee || 'Unknown'), // Fall back to imported_payee or Unknown
       category: t.category,
-      account_id: t.account_id,
+      account_id: t.account,
       transfer_id: t.transfer_id,
       starting_balance_flag: t.starting_balance_flag
     }));
