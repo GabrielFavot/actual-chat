@@ -11,10 +11,10 @@
 
 | Attribute | Value |
 |-----------|-------|
-| Current Phase | 3 of 4 (User Interface) |
-| Plan | 03-03 complete, phase complete |
-| Status | Complete - Ready for Phase 4 |
-| Progress | ███████████░ 75% (3/4 phases complete) |
+| Current Phase | 4 of 4 (Automation) |
+| Plan | 04-01 complete (NotifierState & PollScheduler) |
+| Status | In progress - Phase 4 Plan 01 done |
+| Progress | █████████████░ 87.5% (7/8 plans complete) |
 
 ---
 
@@ -26,7 +26,8 @@
 - **Phase 3 Plan 2 Duration:** ~20 min
 - **Phase 3 Plan 3 Duration:** ~15 min
 - **Phase 3 Total:** ~45 min
-- **Cumulative:** ~49 min
+- **Phase 4 Plan 01 Duration:** ~15 min (Completed 2026-03-12)
+- **Cumulative (Phases):** ~64 min
 - **Quick Task 001 Duration:** ~10 min
 - **Quick Task 002 Duration:** ~15 min
 - **Quick Task 003 Duration:** ~10 min
@@ -34,7 +35,7 @@
 - **Quick Task 005 Duration:** ~10 min
 - **Quick Task 006 Duration:** ~8 min
 - **Total Quick Tasks:** ~58 min
-- **Last activity:** 2026-03-12 - Quick Task 008: Fix account name display in transaction form
+- **Last activity:** 2026-03-12 - Phase 4 Plan 01: Automated polling and notification state
 
 ---
 
@@ -54,6 +55,11 @@
 | Silent ignore for unauthorized | Security best practice - no response | Approved |
 | @actual-app/api library | Official ActualBudget client, verified by actual-ai project | Approved |
 | Service wrapper pattern | ActualApiService class enables testing and extensibility | Approved |
+| File-based state persistence | NotifierState uses JSON file at /tmp/actual-telegram-notif/notifier-state.json | Approved |
+| Fixed 4-hour poll interval | Hardcoded 14,400,000 ms to prevent spam while catching new transactions | Approved |
+| Newest-first transaction selection | Sort by date (descending), send most recent uncategorized | Approved |
+| Skip-if-busy mutex strategy | If poll already running, skip this cycle (don't queue) | Approved |
+| Startup check included | Immediate poll when bot starts, no wait for first 4-hour interval | Approved |
 
 ### Todos
 
@@ -64,7 +70,9 @@
   - [x] Plan 03-01: Enhance API with updateTransaction
   - [x] Plan 03-02: Transaction display command with buttons
   - [x] Plan 03-03: Category button callback handler
-- [ ] Execute Phase 4: Automation
+- [~] Execute Phase 4: Automation (in progress)
+  - [x] Plan 04-01: NotifierState & PollScheduler
+  - [ ] Plan 04-02: Testing & verification
 
 ### Blockers
 
@@ -90,10 +98,10 @@
 ## Session Continuity
 
 **Last session:** 2026-03-12
-**Stopped at:** Completed Phase 3 (User Interface) - all 3 plans done
+**Stopped at:** Completed Phase 4 Plan 01 (NotifierState & PollScheduler)
 **Resume file:** None
 
-**Next:** Phase 4 (Automation) - Scheduled polling and proactive notifications
+**Next:** Phase 4 Plan 02 (Testing & verification)
 
 ---
 
