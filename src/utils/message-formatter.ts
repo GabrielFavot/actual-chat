@@ -78,18 +78,14 @@ Transaction from <b>${payee}</b> → <b>${categoryName}</b>${amountStr}`;
 }
 
 /**
- * Format category list with hierarchy (main + subcategories)
+ * Format category list with hierarchy (groupes + catégories)
  * @param categories - Array of categories from API
+ * @param groups - Map of group_id to group name
  * @returns Formatted category list with hierarchy
  */
-export function formatCategoryList(categories: Category[]): string {
-  // Separate main categories (no group_id) from subcategories
-  const mainCategories = categories.filter(c => !c.group_id);
-  const subCategories = categories.filter(c => c.group_id);
-
-  // If there are no main categories, just show a flat list
-  // (this happens when all categories have group_id but parents aren't included)
-  if (mainCategories.length === 0) {
+export function formatCategoryList(categories: Category[], groups?: Map<string, string>): string {
+  // If no groups provided, just show flat list
+  if (!groups || groups.size === 0) {
     let result = `📁 <b>Categories</b> (${categories.length} total)\n\n`;
     
     // Sort alphabetically for readability
@@ -102,44 +98,43 @@ export function formatCategoryList(categories: Category[]): string {
     return result;
   }
 
-  // Build a map of group_id to subcategories
-  const subCategoryMap = new Map<string, Category[]>();
-  subCategories.forEach(sub => {
-    const key = sub.group_id || '';
-    if (!subCategoryMap.has(key)) {
-      subCategoryMap.set(key, []);
+  // Build a map of group_id to categories
+  const categoryMap = new Map<string, Category[]>();
+  categories.forEach(cat => {
+    const key = cat.group_id || '';
+    if (!categoryMap.has(key)) {
+      categoryMap.set(key, []);
     }
-    subCategoryMap.get(key)!.push(sub);
+    categoryMap.get(key)!.push(cat);
   });
 
+  // Sort groups and categories
+  const sortedGroupIds = Array.from(groups.keys()).sort();
+  
   // Build the display string with hierarchy
   let result = `📁 <b>Categories</b> (${categories.length} total)\n\n`;
 
-  mainCategories.forEach((main, index) => {
-    // Add main category
-    result += `<b>${main.name}</b>\n`;
+  sortedGroupIds.forEach((groupId, index) => {
+    const groupName = groups.get(groupId);
+    const groupCats = categoryMap.get(groupId) || [];
 
-    // Add subcategories if they exist
-    const subs = subCategoryMap.get(main.id) || [];
-    subs.forEach((sub, subIndex) => {
-      const isLast = subIndex === subs.length - 1;
+    if (groupName) {
+      result += `<b>${groupName}</b>\n`;
+    }
+
+    // Sort categories within group
+    const sortedCats = [...groupCats].sort((a, b) => a.name.localeCompare(b.name));
+    sortedCats.forEach((cat, catIndex) => {
+      const isLast = catIndex === sortedCats.length - 1;
       const prefix = isLast ? '  └─ ' : '  ├─ ';
-      result += `${prefix}${sub.name}\n`;
+      result += `${prefix}${cat.name}\n`;
     });
 
-    // Add spacing between main categories
-    if (index < mainCategories.length - 1) {
+    // Add spacing between groups
+    if (index < sortedGroupIds.length - 1) {
       result += '\n';
     }
   });
-
-  // Add note if there are subcategories without a visible parent
-  const orphanedSubs = subCategories.filter(
-    sub => !mainCategories.find(m => m.id === sub.group_id)
-  );
-  if (orphanedSubs.length > 0) {
-    result += `\n<i>Note: ${orphanedSubs.length} subcategories without visible parent</i>`;
-  }
 
   return result;
 }
