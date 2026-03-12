@@ -121,6 +121,34 @@ export class ActualApiService {
   }
 
   /**
+   * Get category groups from the database
+   * @returns Map of group_id to group name
+   */
+  async getCategoryGroups(): Promise<Map<string, string>> {
+    try {
+      const db = (actual as any).getDatabase?.();
+      if (!db) {
+        console.log('Database not available');
+        return new Map();
+      }
+      
+      // Query for category groups - the table is usually 'category_groups'
+      const groups = await (db as any).all?.('SELECT * FROM category_groups');
+      
+      const groupMap = new Map<string, string>();
+      if (Array.isArray(groups)) {
+        groups.forEach((group: any) => {
+          groupMap.set(group.id, group.name);
+        });
+      }
+      return groupMap;
+    } catch (error) {
+      console.log('Could not fetch category groups:', error);
+      return new Map();
+    }
+  }
+
+  /**
    * Get all payees (cached after first call)
    * @returns Map of payee ID to name
    */
