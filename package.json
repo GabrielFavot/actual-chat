@@ -7,8 +7,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node --require ./preload.js dist/index.js",
-    "dev": "tsx --require ./preload.js src/index.ts",
-    "test:categories": "node test-categories.mjs"
+    "dev": "tsx --require ./preload.js src/index.ts"
   },
   "keywords": [
     "telegram",
