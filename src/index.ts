@@ -76,8 +76,9 @@ console.log('Initializing ActualBudget API...');
            return;
          }
          
-         // Debug: log category structure to understand grouping
-         console.log('Categories structure:', JSON.stringify(categories.slice(0, 3), null, 2));
+         // Debug: log grouped structure
+         const grouped = await actualApi.getCategoriesGrouped();
+         console.log('Grouped categories:', JSON.stringify(grouped, null, 2));
          
          const formatted = formatCategoryList(categories);
          await ctx.reply(formatted, { parse_mode: 'HTML' });
