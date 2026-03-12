@@ -78,9 +78,9 @@ Transaction from <b>${payee}</b> → <b>${categoryName}</b>${amountStr}`;
 }
 
 /**
- * Format category list with hierarchy (grouped by category group_id)
+ * Format category list with hierarchy (grouped by category group)
  * @param categories - Array of categories from API
- * @param groups - Optional map of group_id to group name (if available)
+ * @param groups - Map of group_id to group name (from getCategoryGroups)
  * @returns Formatted category list with hierarchy
  */
 export function formatCategoryList(categories: Category[], groups?: Map<string, string>): string {
@@ -94,21 +94,19 @@ export function formatCategoryList(categories: Category[], groups?: Map<string, 
     categoryMap.get(key)!.push(cat);
   });
 
-  // Get all group IDs and sort them
-  const groupIds = Array.from(categoryMap.keys()).sort();
+  // Get all group IDs and sort them by the group name if available
+  const groupIds = Array.from(categoryMap.keys()).sort((a, b) => {
+    const nameA = groups?.get(a) || '';
+    const nameB = groups?.get(b) || '';
+    return nameA.localeCompare(nameB);
+  });
   
   // Build the display string with hierarchy
   let result = `📁 <b>Categories</b> (${categories.length} total)\n\n`;
 
   groupIds.forEach((groupId, groupIndex) => {
     const groupCats = categoryMap.get(groupId) || [];
-    
-    // Get group name if available, otherwise use a generic name
-    let groupName = groups?.get(groupId);
-    if (!groupName) {
-      // Use the first category's name as group indicator, or generate a generic name
-      groupName = `Group ${groupIndex + 1}`;
-    }
+    const groupName = groups?.get(groupId) || `Group ${groupIndex + 1}`;
 
     result += `<b>${groupName}</b>\n`;
 
