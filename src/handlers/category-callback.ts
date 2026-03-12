@@ -1,7 +1,7 @@
 import { Context } from 'grammy';
 import { ActualApiService } from '../services/actual-api.js';
 import { sessionManager } from '../utils/session-manager.js';
-import { formatSuccess, formatError } from '../utils/message-formatter.js';
+import { formatSuccess, formatError, formatAmount } from '../utils/message-formatter.js';
 
 /**
  * Handle category button callback queries
@@ -54,22 +54,19 @@ export async function handleCategoryCallback(
     }
 
     // Update transaction with new category
-    const updatedTransaction = await actualApi.updateTransaction(
-      transactionId,
-      categoryId
-    );
+    await actualApi.updateTransaction(transactionId, categoryId);
 
-    // Get payee name from cache (payee field contains payee ID)
+    // Resolve payee name from session data (payee field may be an ID → resolve via cache)
     const payeeMap = await actualApi.getPayeesMap();
-    const payeeName = updatedTransaction.payee 
-      ? (payeeMap.get(updatedTransaction.payee) || updatedTransaction.payee_name || 'Transaction')
-      : (updatedTransaction.payee_name || 'Transaction');
+    const payeeName = transaction.payee
+      ? (payeeMap.get(transaction.payee) || transaction.payee_name || 'Transaction')
+      : (transaction.payee_name || 'Transaction');
 
     // Format success message
     const successMessage = formatSuccess(
       payeeName,
       category.name,
-      updatedTransaction.amount
+      transaction.amount
     );
 
     // Delete the original message with buttons

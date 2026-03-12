@@ -120,14 +120,6 @@ export class ActualApiService {
   }
 
   /**
-   * Get categories grouped by their group_id
-   * Returns the full hierarchy structure
-   */
-  async getCategoriesGrouped(): Promise<any> {
-    return (actual as any).getCategoriesGrouped?.();
-  }
-
-  /**
    * Get category groups from the API
    * @returns Map of group_id to group name
    */
@@ -207,67 +199,21 @@ export class ActualApiService {
   }
 
   /**
-   * Update a transaction's category
+   * Update a transaction's category.
+   * Caller is responsible for passing a valid transactionId (already known from session).
    * @param transactionId - ID of transaction to update
    * @param categoryId - ID of category to assign
-   * @returns Updated transaction object
-   * @throws Error if transaction or category not found
+   * @throws Error if the API update fails
    */
   async updateTransaction(
     transactionId: string,
     categoryId: string
-  ): Promise<Transaction> {
+  ): Promise<void> {
     if (!this.initialized) {
       throw new Error('API not initialized');
     }
 
-    // Verify category exists
-    const categories = await this.getCategories();
-    const category = categories.find(c => c.id === categoryId);
-    if (!category) {
-      throw new Error(`Category not found: ${categoryId}`);
-    }
-
-    // Get all transactions to find the one we're updating
-    const accounts = await actual.getAccounts();
-    let targetTransaction: any = null;
-
-    for (const account of accounts) {
-      if (account.offbudget) continue;
-
-      const accountTransactions = await actual.getTransactions(
-        account.id,
-        '1990-01-01',
-        '2030-01-01'
-      );
-
-      const found = accountTransactions.find((t: any) => t.id === transactionId);
-      if (found) {
-        targetTransaction = found;
-        break;
-      }
-    }
-
-    if (!targetTransaction) {
-      throw new Error(`Transaction not found: ${transactionId}`);
-    }
-
-    // Update the transaction with new category
-    await actual.updateTransaction(transactionId, {
-      category: categoryId
-    });
-
-    // Return updated transaction
-    return {
-      id: targetTransaction.id,
-      date: targetTransaction.date,
-      amount: targetTransaction.amount,
-      payee_name: targetTransaction.payee || targetTransaction.payee_name,
-      category: categoryId,
-      account_id: targetTransaction.account_id,
-      transfer_id: targetTransaction.transfer_id,
-      starting_balance_flag: targetTransaction.starting_balance_flag
-    };
+    await actual.updateTransaction(transactionId, { category: categoryId });
   }
 
   /**

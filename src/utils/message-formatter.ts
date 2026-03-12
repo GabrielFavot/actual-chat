@@ -1,3 +1,4 @@
+import { InlineKeyboard } from 'grammy';
 import { Transaction, Category } from '../services/actual-api.js';
 
 /**
@@ -75,6 +76,83 @@ export function formatSuccess(
   return `✅ <b>Categorized!</b>
 
 Transaction from <b>${payee}</b> → <b>${categoryName}</b>${amountStr}`;
+}
+
+/**
+ * Build an InlineKeyboard with categories grouped by category group.
+ * Shared between the /transaction command and the poll scheduler.
+ *
+ * @param categories - All available categories
+ * @param categoryGroups - Map of group_id to group name
+ * @param sessionId - Session ID used as prefix in callback_data
+ * @returns Configured InlineKeyboard instance
+ */
+export function buildCategoryKeyboard(
+  categories: Category[],
+  categoryGroups: Map<string, string>,
+  sessionId: string
+): InlineKeyboard {
+  const keyboard = new InlineKeyboard();
+
+  const categoriesByGroup = new Map<string, Category[]>();
+  const ungroupedCategories: Category[] = [];
+
+  for (const category of categories) {
+    if (category.group_id) {
+      if (!categoriesByGroup.has(category.group_id)) {
+        categoriesByGroup.set(category.group_id, []);
+      }
+      categoriesByGroup.get(category.group_id)!.push(category);
+    } else {
+      ungroupedCategories.push(category);
+    }
+  }
+
+  for (const [groupId, groupCategories] of categoriesByGroup.entries()) {
+    const groupName = categoryGroups.get(groupId) || groupId;
+
+    keyboard.text(`📁 ${groupName}`, `group_${groupId}`);
+    keyboard.row();
+
+    for (let i = 0; i < groupCategories.length; i += 2) {
+      const cat1 = groupCategories[i];
+      const cat2 = groupCategories[i + 1];
+
+      keyboard.text(cat1.name, `cat_${sessionId}_${cat1.id}`);
+
+      if (cat2) {
+        keyboard.text(cat2.name, `cat_${sessionId}_${cat2.id}`);
+      }
+
+      if (i + 2 < groupCategories.length) {
+        keyboard.row();
+      }
+    }
+
+    keyboard.row();
+  }
+
+  if (ungroupedCategories.length > 0) {
+    keyboard.text('📁 Other', `group_uncategorized`);
+    keyboard.row();
+
+    for (let i = 0; i < ungroupedCategories.length; i += 2) {
+      const cat1 = ungroupedCategories[i];
+      const cat2 = ungroupedCategories[i + 1];
+
+      keyboard.text(cat1.name, `cat_${sessionId}_${cat1.id}`);
+
+      if (cat2) {
+        keyboard.text(cat2.name, `cat_${sessionId}_${cat2.id}`);
+      }
+
+      if (i + 2 < ungroupedCategories.length) {
+        keyboard.row();
+      }
+    }
+  }
+
+  return keyboard;
 }
 
 /**

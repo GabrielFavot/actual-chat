@@ -13,8 +13,6 @@ interface ConfigError {
 }
 
 export class ConfigValidator {
-  private errors: ConfigError[] = [];
-
   /**
    * Validate Telegram configuration
    */
@@ -31,22 +29,22 @@ export class ConfigValidator {
       });
     }
 
-    // AUTHORIZED_USER_IDS
-    if (!process.env.AUTHORIZED_USER_IDS) {
+    // TELEGRAM_USER_ID
+    if (!process.env.TELEGRAM_USER_ID) {
       errors.push({
-        variable: 'AUTHORIZED_USER_IDS',
+        variable: 'TELEGRAM_USER_ID',
         missing: true,
-        help: 'Your Telegram user ID (comma-separated if multiple users)',
-        example: 'AUTHORIZED_USER_IDS=987654321 or 987654321,123456789',
+        help: 'Your Telegram user ID (get it by sending /start to your bot)',
+        example: 'TELEGRAM_USER_ID=987654321',
       });
-    } else if (!/^\d+(\s*,\s*\d+)*$/.test(process.env.AUTHORIZED_USER_IDS)) {
+    } else if (!/^\d+$/.test(process.env.TELEGRAM_USER_ID.trim())) {
       errors.push({
-        variable: 'AUTHORIZED_USER_IDS',
+        variable: 'TELEGRAM_USER_ID',
         missing: false,
-        value: process.env.AUTHORIZED_USER_IDS,
-        error: 'Invalid format - must be numbers separated by commas',
-        help: 'Use comma-separated numeric IDs only',
-        example: 'AUTHORIZED_USER_IDS=987654321,123456789',
+        value: process.env.TELEGRAM_USER_ID,
+        error: 'Invalid format - must be a single numeric ID',
+        help: 'Use your numeric Telegram user ID only',
+        example: 'TELEGRAM_USER_ID=987654321',
       });
     }
 
@@ -129,20 +127,16 @@ export class ConfigValidator {
   validateCurrency(): ConfigError[] {
     const errors: ConfigError[] = [];
 
-    // CURRENCY is optional, default to USD
-    if (process.env.CURRENCY) {
-      const validCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'CHF', 'CAD', 'AUD', 'NZD', 'INR', 'CNY', 'SEK', 'NOK', 'DKK'];
-      
-      if (!validCurrencies.includes(process.env.CURRENCY)) {
-        errors.push({
-          variable: 'CURRENCY',
-          missing: false,
-          value: process.env.CURRENCY,
-          error: `Invalid currency code - must be one of: ${validCurrencies.join(', ')}`,
-          help: 'Use standard 3-letter currency code',
-          example: 'CURRENCY=EUR',
-        });
-      }
+    // CURRENCY is optional — validate ISO 4217 format (3 uppercase letters) if provided
+    if (process.env.CURRENCY && !/^[A-Z]{3}$/.test(process.env.CURRENCY)) {
+      errors.push({
+        variable: 'CURRENCY',
+        missing: false,
+        value: process.env.CURRENCY,
+        error: 'Invalid currency code - must be a 3-letter ISO 4217 code (e.g. USD, EUR, GBP)',
+        help: 'Use a standard 3-letter uppercase currency code',
+        example: 'CURRENCY=EUR',
+      });
     }
 
     return errors;

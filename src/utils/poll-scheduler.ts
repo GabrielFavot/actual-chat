@@ -1,9 +1,8 @@
-import { Bot, Context } from 'grammy';
+import { Bot } from 'grammy';
 import { ActualApiService } from '../services/actual-api.js';
 import { NotifierState } from '../services/notifier-state.js';
 import { sessionManager } from './session-manager.js';
-import { formatTransaction } from './message-formatter.js';
-import { InlineKeyboard } from 'grammy';
+import { formatTransaction, buildCategoryKeyboard } from './message-formatter.js';
 
 /**
  * PollScheduler: Automated polling for uncategorized transactions
@@ -144,83 +143,7 @@ async function performPoll(
     const sessionId = sessionManager.storeTransaction(newestTransaction);
 
     // Build inline keyboard with grouped categories
-    const keyboard = new InlineKeyboard();
-
-    // Organize categories by group
-    const categoriesByGroup = new Map<string, typeof categories>();
-    const ungroupedCategories: typeof categories = [];
-
-    for (const category of categories) {
-      if (category.group_id) {
-        if (!categoriesByGroup.has(category.group_id)) {
-          categoriesByGroup.set(category.group_id, []);
-        }
-        categoriesByGroup.get(category.group_id)!.push(category);
-      } else {
-        ungroupedCategories.push(category);
-      }
-    }
-
-    // Process each group and add to keyboard
-    for (const [groupId, groupCategories] of categoriesByGroup.entries()) {
-      const groupName = categoryGroups.get(groupId) || groupId;
-
-      // Add group header as a single button (non-functional)
-      keyboard.text(`📁 ${groupName}`, `group_${groupId}`);
-      keyboard.row();
-
-      // Add category buttons (2 per row)
-      for (let i = 0; i < groupCategories.length; i += 2) {
-        const cat1 = groupCategories[i];
-        const cat2 = groupCategories[i + 1];
-
-        // Use session manager like /transaction command
-        keyboard.text(
-          cat1.name,
-          `cat_${sessionId}_${cat1.id}`
-        );
-
-        if (cat2) {
-          keyboard.text(
-            cat2.name,
-            `cat_${sessionId}_${cat2.id}`
-          );
-        }
-
-        if (i + 2 < groupCategories.length) {
-          keyboard.row();
-        }
-      }
-
-      keyboard.row();
-    }
-
-    // Add ungrouped categories if any
-    if (ungroupedCategories.length > 0) {
-      keyboard.text('📁 Other', `group_uncategorized`);
-      keyboard.row();
-
-      for (let i = 0; i < ungroupedCategories.length; i += 2) {
-        const cat1 = ungroupedCategories[i];
-        const cat2 = ungroupedCategories[i + 1];
-
-        keyboard.text(
-          cat1.name,
-          `cat_${sessionId}_${cat1.id}`
-        );
-
-        if (cat2) {
-          keyboard.text(
-            cat2.name,
-            `cat_${sessionId}_${cat2.id}`
-          );
-        }
-
-        if (i + 2 < ungroupedCategories.length) {
-          keyboard.row();
-        }
-      }
-    }
+    const keyboard = buildCategoryKeyboard(categories, categoryGroups, sessionId);
 
     // Send notification with keyboard
     await bot.api.sendMessage(authorizedUserId, message, {
