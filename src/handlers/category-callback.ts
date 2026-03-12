@@ -1,5 +1,6 @@
 import { Context } from 'grammy';
 import { ActualApiService } from '../services/actual-api.js';
+import { sessionManager } from '../utils/session-manager.js';
 import { formatSuccess, formatError } from '../utils/message-formatter.js';
 
 /**
@@ -18,22 +19,25 @@ export async function handleCategoryCallback(
   }
 
   try {
-    // Parse callback data: cat_{categoryId}_{transactionId}
-    // Note: We need to handle UUIDs which contain hyphens but not underscores
-    // Format: cat_[categoryId]_[transactionId]
+    // Parse callback data: cat_{sessionId}_{categoryId}
+    // Example: cat_txn_1_550e8400-e29b-41d4-a716-446655440000
     const parts = callbackData.split('_');
 
-    if (parts.length < 3) {
+    if (parts.length < 4) {
       throw new Error('Invalid callback data format');
     }
 
-    // Extract IDs - first part after 'cat_' is category, rest is transaction
-    const categoryId = parts[1];
-    const transactionId = parts.slice(2).join('_');
+    // Extract: sessionId (part[1]), categoryId (rest)
+    const sessionId = `${parts[1]}_${parts[2]}`;
+    const categoryId = parts.slice(3).join('_'); // Handle UUIDs with hyphens
 
-    if (!categoryId || !transactionId) {
-      throw new Error('Missing category or transaction ID');
+    // Retrieve transaction from session
+    const transaction = sessionManager.getTransaction(sessionId);
+    if (!transaction) {
+      throw new Error('Transaction session expired or not found. Please use /transaction again.');
     }
+
+    const transactionId = transaction.id;
 
     // Show loading state (animated clock)
     await ctx.answerCallbackQuery({
@@ -50,13 +54,13 @@ export async function handleCategoryCallback(
     }
 
     // Update transaction with new category
-    const transaction = await actualApi.updateTransaction(
+    const updatedTransaction = await actualApi.updateTransaction(
       transactionId,
       categoryId
     );
 
     // Get payee name
-    const payeeName = transaction.payee_name || transaction.payee || 'Unknown';
+    const payeeName = updatedTransaction.payee_name || updatedTransaction.payee || 'Unknown';
 
     // Format success message
     const successMessage = formatSuccess(payeeName, category.name);
@@ -74,6 +78,9 @@ export async function handleCategoryCallback(
       parse_mode: 'HTML'
     });
 
+    // Clear the session after successful categorization
+    sessionManager.clearSession(sessionId);
+
     console.log(
       `✓ Transaction ${transactionId} categorized as ${category.name}`
     );
@@ -82,11 +89,12 @@ export async function handleCategoryCallback(
 
     // Try to answer callback query with error
     try {
-      const errorMessage = formatError(error instanceof Error ? error : 'Unknown error');
       await ctx.answerCallbackQuery({
         text: '❌ Error',
         show_alert: true
       });
+
+      const errorMessage = formatError(error instanceof Error ? error : 'Unknown error');
 
       // Send error message
       await ctx.reply(errorMessage, {
