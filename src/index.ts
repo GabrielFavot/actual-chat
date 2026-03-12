@@ -10,10 +10,12 @@ import { Bot } from 'grammy';
 import { ConfigValidator } from './utils/config-validator.js';
 import { authMiddleware } from './middleware/auth.js';
 import { ActualApiService } from './services/actual-api.js';
+import { NotifierState } from './services/notifier-state.js';
 import { handleTransactionCommand } from './commands/transaction.js';
 import { handleHelpCommand } from './commands/help.js';
 import { handleCategoryCallback } from './handlers/category-callback.js';
 import { formatCategoryList } from './utils/message-formatter.js';
+import { startPolling } from './utils/poll-scheduler.js';
 
 // Validate configuration with helpful error messages
 ConfigValidator.validateAndExit();
@@ -45,6 +47,18 @@ console.log('Initializing ActualBudget API...');
     console.log('Connecting to ActualBudget...');
     await actualApi.initialize();
     console.log('✓ ActualBudget API initialized successfully\n');
+    
+    // Initialize notification state (loads persisted state from file)
+    const notifierState = new NotifierState();
+    await notifierState.initialize();
+    console.log('✓ Notification state initialized\n');
+    
+    // Get authorized user ID (from env or first ID from AUTHORIZED_USER_IDS)
+    const authorizedUserIds = process.env.AUTHORIZED_USER_IDS?.split(',').map(id => parseInt(id.trim()));
+    if (!authorizedUserIds || authorizedUserIds.length === 0) {
+      throw new Error('AUTHORIZED_USER_IDS not configured');
+    }
+    const primaryUserId = authorizedUserIds[0];
     
     console.log('Setting up bot commands...');
     
@@ -96,6 +110,11 @@ console.log('Initializing ActualBudget API...');
     bot.on('callback_query:data', (ctx) => handleCategoryCallback(ctx, actualApi));
 
     console.log('✓ Bot commands registered\n');
+    
+    // Start polling scheduler (runs startup check + 4-hour interval)
+    console.log('Starting polling scheduler...');
+    startPolling(bot, actualApi, primaryUserId, notifierState);
+    
     console.log('🤖 Bot starting... waiting for messages\n');
     
     // Start the bot
