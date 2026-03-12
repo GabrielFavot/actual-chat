@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  actual-telegram-notif:
+    # Option A: Utiliser l'image publiée sur Docker Hub
+    # Remplace 'gabmatulee' par ton username Docker Hub
+    image: gabmatulee/actual-telegram-notif:latest
+    
+    # Option B: Builder localement depuis le Dockerfile
+    # Décommente les 2 lignes ci-dessous et commente la ligne 'image:' au-dessus
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+
+    container_name: actual-telegram-notif
+
+    # Variables d'environnement
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      AUTHORIZED_USER_IDS: ${AUTHORIZED_USER_IDS}
+      ACTUAL_SERVER_URL: ${ACTUAL_SERVER_URL}
+      ACTUAL_SERVER_PASSWORD: ${ACTUAL_SERVER_PASSWORD}
+      BUDGET_ID: ${BUDGET_ID}
+      NODE_ENV: production
+
+    # Relancer automatiquement si le container crash
+    restart: unless-stopped
+
+    # Logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Volumes pour persister l'état des notifications
+    volumes:
+      - notifier_state:/tmp/actual-telegram-notif
+
+    # Optionnel: Network si tu as d'autres services
+    networks:
+      - default
+
+volumes:
+  notifier_state:
+    driver: local
+
+networks:
+  default:
+    driver: bridge
