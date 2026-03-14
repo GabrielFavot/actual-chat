@@ -1,4 +1,4 @@
-import { Context } from 'grammy';
+import { Context, GrammyError } from 'grammy';
 import { ActualApiService } from '../services/actual-api.js';
 import { sessionManager } from '../utils/session-manager.js';
 import {
@@ -93,6 +93,14 @@ async function handleGroupSelected(
     // Edit the existing message in place — no new message sent
     await ctx.editMessageReplyMarkup({ reply_markup: keyboard });
   } catch (error) {
+    if (error instanceof GrammyError && error.error_code === 429) {
+      const retryAfter = error.parameters.retry_after ?? 'unknown';
+      console.warn(`⚠️ Telegram rate limit hit in callback handler — retry after ${retryAfter}s`);
+      try {
+        await ctx.answerCallbackQuery({ text: '⏳ Too many requests — please try again shortly', show_alert: true });
+      } catch (_) { /* ignore secondary failure */ }
+      return;
+    }
     console.error('Error handling group selection:', error);
     try {
       await ctx.answerCallbackQuery({ text: '❌ Error loading categories', show_alert: true });
@@ -126,6 +134,14 @@ async function handleBack(
     const keyboard = buildGroupKeyboard(categories, categoryGroups, sessionId);
     await ctx.editMessageReplyMarkup({ reply_markup: keyboard });
   } catch (error) {
+    if (error instanceof GrammyError && error.error_code === 429) {
+      const retryAfter = error.parameters.retry_after ?? 'unknown';
+      console.warn(`⚠️ Telegram rate limit hit in callback handler — retry after ${retryAfter}s`);
+      try {
+        await ctx.answerCallbackQuery({ text: '⏳ Too many requests — please try again shortly', show_alert: true });
+      } catch (_) { /* ignore secondary failure */ }
+      return;
+    }
     console.error('Error handling back navigation:', error);
     try {
       await ctx.answerCallbackQuery({ text: '❌ Error', show_alert: true });
@@ -182,6 +198,14 @@ async function handleCategorySelected(
 
     console.log(`✓ Transaction ${transaction.id} categorized as ${category.name}`);
   } catch (error) {
+    if (error instanceof GrammyError && error.error_code === 429) {
+      const retryAfter = error.parameters.retry_after ?? 'unknown';
+      console.warn(`⚠️ Telegram rate limit hit in callback handler — retry after ${retryAfter}s`);
+      try {
+        await ctx.answerCallbackQuery({ text: '⏳ Too many requests — please try again shortly', show_alert: true });
+      } catch (_) { /* ignore secondary failure */ }
+      return;
+    }
     console.error('Error handling category selection:', error);
     try {
       await ctx.answerCallbackQuery({ text: '❌ Error', show_alert: true });

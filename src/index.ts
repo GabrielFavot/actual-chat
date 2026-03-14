@@ -6,7 +6,7 @@ if (typeof navigator === 'undefined') {
 }
 
 import 'dotenv/config';
-import { Bot } from 'grammy';
+import { Bot, GrammyError } from 'grammy';
 import { ConfigValidator } from './utils/config-validator.js';
 import { authMiddleware, authorizedUserId } from './middleware/auth.js';
 import { ActualApiService } from './services/actual-api.js';
@@ -38,7 +38,13 @@ const actualApi = new ActualApiService({
 
 // Error handling for the bot
 bot.catch((err) => {
-  console.error('Bot error:', err);
+  const error = err.error;
+  if (error instanceof GrammyError && error.error_code === 429) {
+    const retryAfter = error.parameters.retry_after ?? 'unknown';
+    console.warn(`⚠️ Telegram rate limit (429) — retry after ${retryAfter}s`);
+  } else {
+    console.error('Bot error:', err);
+  }
 });
 
 console.log('Initializing ActualBudget API...');
