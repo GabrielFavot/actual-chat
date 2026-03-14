@@ -1,4 +1,4 @@
-import { Bot } from 'grammy';
+import { Bot, GrammyError } from 'grammy';
 import { ActualApiService } from '../services/actual-api.js';
 import { NotifierState } from '../services/notifier-state.js';
 import { sessionManager } from './session-manager.js';
@@ -162,8 +162,13 @@ async function performPoll(
       `Poll complete: sent notification for ${newestTransaction.payee_name} ${newestTransaction.amount}`
     );
   } catch (error) {
-    console.error('Error during poll cycle:', error);
-    // Don't crash - continue polling even if this cycle failed
+    if (error instanceof GrammyError && error.error_code === 429) {
+      const retryAfter = error.parameters.retry_after ?? 'unknown';
+      console.warn(`⚠️ Telegram rate limit hit during poll — retry after ${retryAfter}s. Skipping this cycle.`);
+    } else {
+      console.error('Error during poll cycle:', error);
+    }
+    // Don't crash — continue polling even if this cycle failed
   } finally {
     isPolling = false;
   }
