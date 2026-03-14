@@ -13,6 +13,16 @@ export function formatAmount(amount: number): string {
 }
 
 /**
+ * Format poll summary message showing count of new transactions
+ * @param newCount - Number of new unnotified transactions found
+ * @returns Formatted summary message string
+ */
+export function formatPollSummary(newCount: number): string {
+  const label = newCount === 1 ? 'new transaction' : 'new transactions';
+  return `🔔 <b>${newCount} ${label}</b> to categorize`;
+}
+
+/**
  * Format transaction for display in Telegram
  * @param transaction - Transaction object from API
  * @param accountName - Optional account name (if available)
