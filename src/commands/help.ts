@@ -20,6 +20,9 @@ Check how many uncategorized transactions exist
 <b>/categories</b>
 Check how many categories are available
 
+<b>/report</b>
+View remaining budget per category for the current month
+
 <b>/help</b>
 Show this message`;
 
