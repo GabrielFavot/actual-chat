@@ -1,5 +1,5 @@
 import { InlineKeyboard } from 'grammy';
-import { Transaction, Category } from '../services/actual-api.js';
+import { Transaction, Category, BudgetMonth } from '../services/actual-api.js';
 
 /**
  * Format amount as a number
@@ -229,6 +229,47 @@ export function formatCategoryList(categories: Category[], groups?: Map<string, 
       result += '\n';
     }
   });
+
+  return result;
+}
+
+/**
+ * Format budget report for display in Telegram
+ * Shows per-category remaining balance grouped by category group.
+ * Filters out: income groups, hidden groups/categories, zero-activity categories.
+ *
+ * @param budget - BudgetMonth data from getBudgetMonth()
+ * @param month - Display month string (e.g. "2026-03")
+ * @returns HTML-formatted message for Telegram (parse_mode: 'HTML')
+ */
+export function formatBudgetReport(budget: BudgetMonth, month: string): string {
+  const expenseGroups = budget.categoryGroups.filter(
+    (g) => !g.is_income && !g.hidden
+  );
+
+  let result = `📊 <b>Budget Report — ${month}</b>\n\n`;
+
+  for (const group of expenseGroups) {
+    const activeCategories = group.categories.filter(
+      (c) => !c.hidden && (c.budgeted !== 0 || c.spent !== 0)
+    );
+    if (activeCategories.length === 0) continue;
+
+    result += `<b>${group.name}</b>\n`;
+
+    for (const cat of activeCategories) {
+      const spent = Math.abs(cat.spent) / 100;
+      const budgeted = cat.budgeted / 100;
+      const balance = cat.balance / 100;
+      const emoji = balance < 0 ? '🔴' : balance === 0 ? '⚪' : '🟢';
+      result += `  ${emoji} ${cat.name}: ${balance.toFixed(2)} left`;
+      result += ` (${spent.toFixed(2)} / ${budgeted.toFixed(2)})\n`;
+    }
+    result += '\n';
+  }
+
+  const totalBalance = budget.totalBalance / 100;
+  result += `<b>Total remaining: ${totalBalance.toFixed(2)}</b>`;
 
   return result;
 }
