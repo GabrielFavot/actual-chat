@@ -15,6 +15,7 @@ import { handleTransactionCommand } from './commands/transaction.js';
 import { handleUncategorizedCommand } from './commands/uncategorized.js';
 import { handleCategoriesCommand } from './commands/categories.js';
 import { handleHelpCommand } from './commands/help.js';
+import { handleReportCommand } from './commands/report.js';
 import { handleCategoryCallback } from './handlers/category-callback.js';
 import { startPolling } from './utils/poll-scheduler.js';
 
@@ -72,6 +73,9 @@ console.log('Initializing ActualBudget API...');
 
     // /transaction command - display first uncategorized transaction with category buttons
     bot.command('transaction', (ctx) => handleTransactionCommand(ctx, actualApi));
+
+    // /report command - show per-category budget remaining for current month
+    bot.command('report', (ctx) => handleReportCommand(ctx, actualApi));
 
     // /help command - show available commands
     bot.command('help', (ctx) => handleHelpCommand(ctx));
