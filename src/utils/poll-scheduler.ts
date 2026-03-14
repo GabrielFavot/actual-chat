@@ -2,7 +2,7 @@ import { Bot } from 'grammy';
 import { ActualApiService } from '../services/actual-api.js';
 import { NotifierState } from '../services/notifier-state.js';
 import { sessionManager } from './session-manager.js';
-import { formatTransaction, buildGroupKeyboard } from './message-formatter.js';
+import { formatTransaction, formatPollSummary, buildGroupKeyboard } from './message-formatter.js';
 
 /**
  * PollScheduler: Automated polling for uncategorized transactions
@@ -107,6 +107,13 @@ async function performPoll(
       console.log(`Poll complete: newest transaction already notified (${newestTransaction.id})`);
       return;
     }
+
+    // Count all unnotified transactions for summary message
+    const newCount = sortedTransactions.filter(t => !notifierState.hasBeenNotified(t.id)).length;
+
+    // Send summary message before the individual transaction prompt
+    const summaryMessage = formatPollSummary(newCount);
+    await bot.api.sendMessage(authorizedUserId, summaryMessage, { parse_mode: 'HTML' });
 
     // Mark as notified
     notifierState.markNotified(newestTransaction.id);
