@@ -39,6 +39,38 @@ export interface Account {
   offbudget?: boolean;
 }
 
+export interface CategoryBudget {
+  id: string;
+  name: string;
+  group_id: string;
+  is_income: boolean;
+  hidden: boolean;
+  budgeted: number;   // integer, value × 100 (e.g. 50000 = $500.00)
+  spent: number;      // integer, NEGATIVE for expenses
+  balance: number;    // pre-calculated: budgeted + spent
+  carryover?: boolean;
+}
+
+export interface CategoryGroupBudget {
+  id: string;
+  name: string;
+  is_income: boolean;
+  hidden: boolean;
+  budgeted: number;
+  spent: number;
+  balance: number;
+  categories: CategoryBudget[];
+}
+
+export interface BudgetMonth {
+  month: string;
+  totalBudgeted: number;
+  totalSpent: number;
+  totalBalance: number;
+  toBudget: number;
+  categoryGroups: CategoryGroupBudget[];
+}
+
 export class ActualApiService {
   private initialized = false;
   private config: ActualBudgetConfig;
@@ -140,6 +172,16 @@ export class ActualApiService {
       console.error('Error fetching category groups:', error);
       return new Map();
     }
+  }
+
+  /**
+   * Get budget data for a specific month.
+   * @param month - Month in "YYYY-MM" format (e.g. "2026-03")
+   * @returns BudgetMonth with categoryGroups containing per-category balance data
+   */
+  async getBudgetMonth(month: string): Promise<BudgetMonth> {
+    const data = await (actual as any).getBudgetMonth(month);
+    return data as BudgetMonth;
   }
 
   /**
