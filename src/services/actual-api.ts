@@ -113,13 +113,19 @@ export class ActualApiService {
     const payeesMap = await this.getPayeesMap();
     let transactions: any[] = [];
 
+    // Compute lookback start date (default: 3 months)
+    const lookbackMonths = parseInt(process.env.TRANSACTION_LOOKBACK_MONTHS ?? '3', 10);
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - lookbackMonths);
+    const startDateStr = startDate.toISOString().slice(0, 10);
+
     for (const account of accounts) {
       // Skip off-budget accounts
       if (account.offbudget) continue;
 
       const accountTransactions = await actual.getTransactions(
         account.id,
-        '1990-01-01',
+        startDateStr,
         '2030-01-01'
       );
       transactions = transactions.concat(accountTransactions);
