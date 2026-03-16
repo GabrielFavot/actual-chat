@@ -10,7 +10,6 @@ import { Bot, GrammyError } from 'grammy';
 import { ConfigValidator } from './utils/config-validator.js';
 import { authMiddleware, authorizedUserId } from './middleware/auth.js';
 import { ActualApiService } from './services/actual-api.js';
-import { NotifierState } from './services/notifier-state.js';
 import { handleTransactionCommand } from './commands/transaction.js';
 import { handleUncategorizedCommand } from './commands/uncategorized.js';
 import { handleCategoriesCommand } from './commands/categories.js';
@@ -65,11 +64,6 @@ console.log('Initializing ActualBudget API...');
     await actualApi.initialize();
     console.log('✓ ActualBudget API initialized successfully\n');
     
-    // Initialize notification state (loads persisted state from file)
-    const notifierState = new NotifierState();
-    await notifierState.initialize();
-    console.log('✓ Notification state initialized\n');
-    
     console.log('Setting up bot commands...');
     
     // /start command
@@ -102,7 +96,7 @@ console.log('Initializing ActualBudget API...');
     
     // Start polling scheduler (runs startup check + 4-hour interval)
     console.log('Starting polling scheduler...');
-    await startPolling(bot, actualApi, authorizedUserId, notifierState);
+    await startPolling(bot, actualApi, authorizedUserId);
     
     console.log('🤖 Bot starting... waiting for messages\n');
     

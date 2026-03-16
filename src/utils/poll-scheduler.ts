@@ -1,6 +1,5 @@
 import { Bot, GrammyError } from 'grammy';
 import { ActualApiService } from '../services/actual-api.js';
-import { NotifierState } from '../services/notifier-state.js';
 import { sessionManager } from './session-manager.js';
 import { formatTransaction, formatPollSummary, buildGroupKeyboard } from './message-formatter.js';
 
@@ -24,26 +23,20 @@ const POLL_INTERVAL_MS = 4 * 60 * 60 * 1000;
 /**
  * Start the polling scheduler
  * Immediately runs one poll, then schedules 4-hour interval polls
- * 
- * @param bot - grammY Bot instance for sending messages
- * @param actualApi - ActualApiService for fetching transactions
- * @param authorizedUserId - Telegram user ID to send notifications to
- * @param notifierState - NotifierState for tracking notified transactions
  */
 export async function startPolling(
   bot: Bot,
   actualApi: ActualApiService,
   authorizedUserId: number,
-  notifierState: NotifierState
 ): Promise<void> {
   console.log(`Starting polling scheduler (4-hour interval, target user: ${authorizedUserId})`);
 
   // Run initial poll immediately
-  await performPoll(bot, actualApi, authorizedUserId, notifierState);
+  await performPoll(bot, actualApi, authorizedUserId);
 
   // Schedule recurring polls every 4 hours
   pollInterval = setInterval(async () => {
-    await performPoll(bot, actualApi, authorizedUserId, notifierState);
+    await performPoll(bot, actualApi, authorizedUserId);
   }, POLL_INTERVAL_MS);
 
   console.log('✓ Polling scheduler started');
@@ -61,7 +54,6 @@ async function performPoll(
   bot: Bot,
   actualApi: ActualApiService,
   authorizedUserId: number,
-  notifierState: NotifierState
 ): Promise<void> {
   // Mutex: prevent concurrent polls
   if (isPolling) {
@@ -102,21 +94,9 @@ async function performPoll(
 
     const newestTransaction = sortedTransactions[0];
 
-    // Check if we've already notified about this transaction
-    if (notifierState.hasBeenNotified(newestTransaction.id)) {
-      console.log(`Poll complete: newest transaction already notified (${newestTransaction.id})`);
-      return;
-    }
-
-    // Count all unnotified transactions for summary message
-    const newCount = sortedTransactions.filter(t => !notifierState.hasBeenNotified(t.id)).length;
-
     // Send summary message before the individual transaction prompt
-    const summaryMessage = formatPollSummary(newCount);
+    const summaryMessage = formatPollSummary(sortedTransactions.length);
     await bot.api.sendMessage(authorizedUserId, summaryMessage, { parse_mode: 'HTML' });
-
-    // Mark as notified
-    notifierState.markNotified(newestTransaction.id);
 
     // Fetch account name for the transaction
     let accountName: string | undefined;

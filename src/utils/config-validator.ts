@@ -122,27 +122,6 @@ export class ConfigValidator {
   }
 
   /**
-   * Validate currency configuration
-   */
-  validateCurrency(): ConfigError[] {
-    const errors: ConfigError[] = [];
-
-    // CURRENCY is optional — validate ISO 4217 format (3 uppercase letters) if provided
-    if (process.env.CURRENCY && !/^[A-Z]{3}$/.test(process.env.CURRENCY)) {
-      errors.push({
-        variable: 'CURRENCY',
-        missing: false,
-        value: process.env.CURRENCY,
-        error: 'Invalid currency code - must be a 3-letter ISO 4217 code (e.g. USD, EUR, GBP)',
-        help: 'Use a standard 3-letter uppercase currency code',
-        example: 'CURRENCY=EUR',
-      });
-    }
-
-    return errors;
-  }
-
-  /**
    * Validate transaction lookback configuration
    */
   validateTransactionLookback(): ConfigError[] {
@@ -173,7 +152,6 @@ export class ConfigValidator {
     return [
       ...this.validateTelegram(),
       ...this.validateActualBudget(),
-      ...this.validateCurrency(),
       ...this.validateTransactionLookback(),
     ];
   }
