@@ -1,6 +1,24 @@
 version: '3.8'
 
 services:
+  actual:
+    image: 'actualbudget/actual-server:latest'
+    container_name: actual
+    environment:
+      - ACTUAL_LOGIN_METHOD=password
+    volumes:
+      - 'actual_data:/data'
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "bash -c ':> /dev/tcp/127.0.0.1/5006' || exit 1"
+      interval: 5s
+      timeout: 20s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - default
+
   actual-telegram-notif:
     # Option A: Utiliser l'image publiée sur Docker Hub
     # Remplace 'gabmatulee' par ton username Docker Hub
@@ -23,6 +41,10 @@ services:
       BUDGET_ID: ${BUDGET_ID}
       NODE_ENV: production
 
+    depends_on:
+      actual:
+        condition: service_healthy
+
     # Relancer automatiquement si le container crash
     restart: unless-stopped
 
@@ -42,6 +64,8 @@ services:
       - default
 
 volumes:
+  actual_data:
+    driver: local
   notifier_state:
     driver: local
 
