@@ -22,7 +22,7 @@ export async function handleTransactionCommand(
     // Check if there are any uncategorized transactions
     if (transactions.length === 0) {
       await ctx.reply(
-        '✅ <b>All set!</b>\n\nNo uncategorized transactions found.',
+        '✅ <b>All set!</b>\n\nNo recent uncategorized transactions found.',
         { parse_mode: 'HTML' }
       );
       return;
