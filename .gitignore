@@ -38,9 +38,8 @@ Thumbs.db
 .env.test
 .env.development
 
-# GSD Planning artifacts (temp files only)
-.planning/**/temp/
-.planning/**/debug.md
+# GSD Planning artifacts
+.planning/
 
 # Cache
 .cache/
