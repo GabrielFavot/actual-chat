@@ -47,6 +47,15 @@ bot.catch((err) => {
   }
 });
 
+// Catch unhandled promise rejections from third-party libraries (e.g. Actual bank sync internals)
+// to prevent process crash on transient bank sync errors
+process.on('unhandledRejection', (reason) => {
+  console.warn(
+    '⚠️ Unhandled promise rejection (suppressed to prevent crash):',
+    reason instanceof Error ? reason.message : String(reason)
+  );
+});
+
 console.log('Initializing ActualBudget API...');
 
 // Initialize API and start bot
@@ -93,7 +102,7 @@ console.log('Initializing ActualBudget API...');
     
     // Start polling scheduler (runs startup check + 4-hour interval)
     console.log('Starting polling scheduler...');
-    startPolling(bot, actualApi, authorizedUserId, notifierState);
+    await startPolling(bot, actualApi, authorizedUserId, notifierState);
     
     console.log('🤖 Bot starting... waiting for messages\n');
     
