@@ -143,6 +143,30 @@ export class ConfigValidator {
   }
 
   /**
+   * Validate transaction lookback configuration
+   */
+  validateTransactionLookback(): ConfigError[] {
+    const errors: ConfigError[] = [];
+
+    // TRANSACTION_LOOKBACK_MONTHS is optional — validate positive integer if provided
+    if (process.env.TRANSACTION_LOOKBACK_MONTHS !== undefined) {
+      const val = parseInt(process.env.TRANSACTION_LOOKBACK_MONTHS, 10);
+      if (isNaN(val) || val <= 0 || String(val) !== process.env.TRANSACTION_LOOKBACK_MONTHS.trim()) {
+        errors.push({
+          variable: 'TRANSACTION_LOOKBACK_MONTHS',
+          missing: false,
+          value: process.env.TRANSACTION_LOOKBACK_MONTHS,
+          error: 'Invalid value - must be a positive integer (number of months)',
+          help: 'Limits how far back uncategorized transactions are fetched. Default is 3.',
+          example: 'TRANSACTION_LOOKBACK_MONTHS=3',
+        });
+      }
+    }
+
+    return errors;
+  }
+
+  /**
    * Validate all configuration
    */
   validateAll(): ConfigError[] {
@@ -150,6 +174,7 @@ export class ConfigValidator {
       ...this.validateTelegram(),
       ...this.validateActualBudget(),
       ...this.validateCurrency(),
+      ...this.validateTransactionLookback(),
     ];
   }
 
