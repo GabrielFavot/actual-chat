@@ -119,6 +119,10 @@ export class ActualApiService {
     startDate.setMonth(startDate.getMonth() - lookbackMonths);
     const startDateStr = startDate.toISOString().slice(0, 10);
 
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 3)
+    const endDateStr = endDate.toISOString().slice(0, 10);
+
     for (const account of accounts) {
       // Skip off-budget accounts
       if (account.offbudget) continue;
@@ -126,7 +130,7 @@ export class ActualApiService {
       const accountTransactions = await actual.getTransactions(
         account.id,
         startDateStr,
-        '2030-01-01'
+        endDateStr
       );
       transactions = transactions.concat(accountTransactions);
     }
