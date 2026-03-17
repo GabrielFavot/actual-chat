@@ -243,7 +243,7 @@ export function formatCategoryList(categories: Category[], groups?: Map<string, 
  * @param month - Display month string (e.g. "2026-03")
  * @returns HTML-formatted message for Telegram (parse_mode: 'HTML')
  */
-export function formatBudgetReport(budget: BudgetMonth, month: string, detailed = false): string {
+export function formatBudgetReport(budget: BudgetMonth, month: string, detailed = false, net?: number): string {
   const expenseGroups = budget.categoryGroups.filter(
     (g) => !g.is_income && !g.hidden
   );
@@ -282,16 +282,11 @@ export function formatBudgetReport(budget: BudgetMonth, month: string, detailed 
     }
   }
 
-  const totalIncome = budget.categoryGroups
-    .filter((g) => g.is_income)
-    .flatMap((g) => g.categories)
-    .reduce((sum, c) => sum + (c.spent ?? 0), 0) / 100;
-  const totalExpenses = expenseGroups
-    .flatMap((g) => g.categories)
-    .reduce((sum, c) => sum + (c.spent ?? 0), 0) / 100; // negative
-  const net = totalIncome + totalExpenses;
-  const netLabel = net >= 0 ? `+${net.toFixed(2)}` : net.toFixed(2);
-  const netEmoji = net >= 0 ? '📈' : '📉';
+  const computedNet = net ?? (
+    budget.categoryGroups.reduce((sum, g) => sum + g.spent, 0) / 100
+  );
+  const netLabel = computedNet >= 0 ? `+${computedNet.toFixed(2)}` : computedNet.toFixed(2);
+  const netEmoji = computedNet >= 0 ? '📈' : '📉';
   result += `\n${netEmoji} <b>Net: ${netLabel}</b>`;
 
   return result;
