@@ -243,7 +243,7 @@ export function formatCategoryList(categories: Category[], groups?: Map<string, 
  * @param month - Display month string (e.g. "2026-03")
  * @returns HTML-formatted message for Telegram (parse_mode: 'HTML')
  */
-export function formatBudgetReport(budget: BudgetMonth, month: string): string {
+export function formatBudgetReport(budget: BudgetMonth, month: string, detailed = false): string {
   const expenseGroups = budget.categoryGroups.filter(
     (g) => !g.is_income && !g.hidden
   );
@@ -261,12 +261,36 @@ export function formatBudgetReport(budget: BudgetMonth, month: string): string {
     const groupBalance = group.balance / 100;
     const groupEmoji = groupBalance < 0 ? '🔴' : groupBalance === 0 ? '⚪' : '🟢';
 
-    result += `${groupEmoji} <b>${group.name}</b>: ${groupBalance.toFixed(2)} left`;
-    result += ` (${groupSpent.toFixed(2)} / ${groupBudgeted.toFixed(2)})\n`;
+    const balanceLabel = groupBalance < 0
+      ? `${Math.abs(groupBalance).toFixed(2)} over`
+      : `${groupBalance.toFixed(2)} left`;
+
+    if (detailed) {
+      result += `${groupEmoji} <b>${group.name}</b>: ${balanceLabel} (${groupSpent.toFixed(2)} / ${groupBudgeted.toFixed(2)})\n`;
+      for (const cat of activeCategories) {
+        const catSpent = Math.abs(cat.spent) / 100;
+        const catBudgeted = cat.budgeted / 100;
+        const catBalance = cat.balance / 100;
+        const catEmoji = catBalance < 0 ? '🔴' : catBalance === 0 ? '⚪' : '🟢';
+        const catLabel = catBalance < 0
+          ? `${Math.abs(catBalance).toFixed(2)} over`
+          : `${catBalance.toFixed(2)} left`;
+        result += `  ${catEmoji} ${cat.name}: ${catLabel} (${catSpent.toFixed(2)} / ${catBudgeted.toFixed(2)})\n`;
+      }
+    } else {
+      result += `${groupEmoji} <b>${group.name}</b>: ${balanceLabel}\n`;
+    }
   }
 
-  const totalBalance = budget.totalBalance / 100;
-  result += `<b>Total remaining: ${totalBalance.toFixed(2)}</b>`;
+  const totalIncome = budget.categoryGroups
+    .filter((g) => g.is_income)
+    .reduce((sum, g) => sum + g.spent, 0) / 100;
+  const totalExpenses = expenseGroups
+    .reduce((sum, g) => sum + g.spent, 0) / 100; // negative
+  const net = totalIncome + totalExpenses;
+  const netLabel = net >= 0 ? `+${net.toFixed(2)}` : net.toFixed(2);
+  const netEmoji = net >= 0 ? '📈' : '📉';
+  result += `\n${netEmoji} <b>Net: ${netLabel}</b>`;
 
   return result;
 }

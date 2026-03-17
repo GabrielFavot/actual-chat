@@ -23,8 +23,9 @@ export async function handleReportCommand(
 ): Promise<void> {
   try {
     const month = getCurrentMonth();
+    const detailed = ctx.match?.toString().trim() === 'detail';
     const budgetData = await actualApi.getBudgetMonth(month);
-    const formatted = formatBudgetReport(budgetData, month);
+    const formatted = formatBudgetReport(budgetData, month, detailed);
     await ctx.reply(formatted, { parse_mode: 'HTML' });
   } catch (error) {
     console.error('Error fetching budget report:', error);
