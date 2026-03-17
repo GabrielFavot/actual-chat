@@ -263,16 +263,6 @@ export function formatBudgetReport(budget: BudgetMonth, month: string): string {
 
     result += `${groupEmoji} <b>${group.name}</b>: ${groupBalance.toFixed(2)} left`;
     result += ` (${groupSpent.toFixed(2)} / ${groupBudgeted.toFixed(2)})\n`;
-
-    for (const cat of activeCategories) {
-      const spent = Math.abs(cat.spent) / 100;
-      const budgeted = cat.budgeted / 100;
-      const balance = cat.balance / 100;
-      const emoji = balance < 0 ? '🔴' : balance === 0 ? '⚪' : '🟢';
-      result += `  ${emoji} ${cat.name}: ${balance.toFixed(2)} left`;
-      result += ` (${spent.toFixed(2)} / ${budgeted.toFixed(2)})\n`;
-    }
-    result += '\n';
   }
 
   const totalBalance = budget.totalBalance / 100;
