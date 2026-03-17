@@ -282,11 +282,15 @@ export function formatBudgetReport(budget: BudgetMonth, month: string, detailed 
     }
   }
 
-  const totalBalance = budget.totalBalance / 100;
-  const totalLabel = totalBalance < 0
-    ? `${Math.abs(totalBalance).toFixed(2)} over`
-    : `${totalBalance.toFixed(2)} left`;
-  result += `\n<b>Total: ${totalLabel}</b>`;
+  const totalIncome = budget.categoryGroups
+    .filter((g) => g.is_income)
+    .reduce((sum, g) => sum + g.spent, 0) / 100;
+  const totalExpenses = expenseGroups
+    .reduce((sum, g) => sum + g.spent, 0) / 100; // negative
+  const net = totalIncome + totalExpenses;
+  const netLabel = net >= 0 ? `+${net.toFixed(2)}` : net.toFixed(2);
+  const netEmoji = net >= 0 ? '📈' : '📉';
+  result += `\n${netEmoji} <b>Net: ${netLabel}</b>`;
 
   return result;
 }
