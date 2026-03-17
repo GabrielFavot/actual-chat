@@ -195,6 +195,41 @@ export class ActualApiService {
   }
 
   /**
+   * Get all on-budget transactions for a given month, excluding transfers and starting balances.
+   * @param month - Month in "YYYY-MM" format (e.g. "2026-03")
+   * @returns Array of transactions for the month
+   */
+  async getMonthTransactions(month: string): Promise<Transaction[]> {
+    const accounts = await actual.getAccounts();
+    const payeesMap = await this.getPayeesMap();
+
+    const startDate = `${month}-01`;
+    const [year, m] = month.split('-').map(Number);
+    const lastDay = new Date(year, m, 0).getDate();
+    const endDate = `${month}-${String(lastDay).padStart(2, '0')}`;
+
+    let transactions: any[] = [];
+    for (const account of accounts) {
+      if (account.offbudget) continue;
+      const accountTransactions = await actual.getTransactions(account.id, startDate, endDate);
+      transactions = transactions.concat(accountTransactions);
+    }
+
+    return transactions
+      .filter(t => !t.transfer_id && !t.starting_balance_flag)
+      .map((t: any) => ({
+        id: t.id,
+        date: t.date,
+        amount: t.amount,
+        payee_name: t.payee ? payeesMap.get(t.payee) : (t.imported_payee || 'Unknown'),
+        category: t.category,
+        account_id: t.account,
+        transfer_id: t.transfer_id,
+        starting_balance_flag: t.starting_balance_flag
+      }));
+  }
+
+  /**
    * Get all payees (cached after first call)
    * @returns Map of payee ID to name
    */
