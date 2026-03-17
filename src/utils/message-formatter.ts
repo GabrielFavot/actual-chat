@@ -243,7 +243,7 @@ export function formatCategoryList(categories: Category[], groups?: Map<string, 
  * @param month - Display month string (e.g. "2026-03")
  * @returns HTML-formatted message for Telegram (parse_mode: 'HTML')
  */
-export function formatBudgetReport(budget: BudgetMonth, month: string): string {
+export function formatBudgetReport(budget: BudgetMonth, month: string, detailed = false): string {
   const expenseGroups = budget.categoryGroups.filter(
     (g) => !g.is_income && !g.hidden
   );
@@ -264,15 +264,29 @@ export function formatBudgetReport(budget: BudgetMonth, month: string): string {
     const balanceLabel = groupBalance < 0
       ? `${Math.abs(groupBalance).toFixed(2)} over`
       : `${groupBalance.toFixed(2)} left`;
-    result += `${groupEmoji} <b>${group.name}</b>: ${balanceLabel}`;
-    result += ` (${groupSpent.toFixed(2)} / ${groupBudgeted.toFixed(2)})\n`;
+
+    if (detailed) {
+      result += `${groupEmoji} <b>${group.name}</b>: ${balanceLabel} (${groupSpent.toFixed(2)} / ${groupBudgeted.toFixed(2)})\n`;
+      for (const cat of activeCategories) {
+        const catSpent = Math.abs(cat.spent) / 100;
+        const catBudgeted = cat.budgeted / 100;
+        const catBalance = cat.balance / 100;
+        const catEmoji = catBalance < 0 ? '🔴' : catBalance === 0 ? '⚪' : '🟢';
+        const catLabel = catBalance < 0
+          ? `${Math.abs(catBalance).toFixed(2)} over`
+          : `${catBalance.toFixed(2)} left`;
+        result += `  ${catEmoji} ${cat.name}: ${catLabel} (${catSpent.toFixed(2)} / ${catBudgeted.toFixed(2)})\n`;
+      }
+    } else {
+      result += `${groupEmoji} <b>${group.name}</b>: ${balanceLabel}\n`;
+    }
   }
 
   const totalBalance = budget.totalBalance / 100;
   const totalLabel = totalBalance < 0
     ? `${Math.abs(totalBalance).toFixed(2)} over`
     : `${totalBalance.toFixed(2)} left`;
-  result += `<b>Total remaining: ${totalLabel}</b>`;
+  result += `\n<b>Total: ${totalLabel}</b>`;
 
   return result;
 }
