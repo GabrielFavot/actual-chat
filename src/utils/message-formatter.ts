@@ -261,12 +261,18 @@ export function formatBudgetReport(budget: BudgetMonth, month: string): string {
     const groupBalance = group.balance / 100;
     const groupEmoji = groupBalance < 0 ? '🔴' : groupBalance === 0 ? '⚪' : '🟢';
 
-    result += `${groupEmoji} <b>${group.name}</b>: ${groupBalance.toFixed(2)} left`;
+    const balanceLabel = groupBalance < 0
+      ? `${Math.abs(groupBalance).toFixed(2)} over`
+      : `${groupBalance.toFixed(2)} left`;
+    result += `${groupEmoji} <b>${group.name}</b>: ${balanceLabel}`;
     result += ` (${groupSpent.toFixed(2)} / ${groupBudgeted.toFixed(2)})\n`;
   }
 
   const totalBalance = budget.totalBalance / 100;
-  result += `<b>Total remaining: ${totalBalance.toFixed(2)}</b>`;
+  const totalLabel = totalBalance < 0
+    ? `${Math.abs(totalBalance).toFixed(2)} over`
+    : `${totalBalance.toFixed(2)} left`;
+  result += `<b>Total remaining: ${totalLabel}</b>`;
 
   return result;
 }
