@@ -284,9 +284,11 @@ export function formatBudgetReport(budget: BudgetMonth, month: string, detailed 
 
   const totalIncome = budget.categoryGroups
     .filter((g) => g.is_income)
-    .reduce((sum, g) => sum + g.spent, 0) / 100;
+    .flatMap((g) => g.categories)
+    .reduce((sum, c) => sum + (c.spent ?? 0), 0) / 100;
   const totalExpenses = expenseGroups
-    .reduce((sum, g) => sum + g.spent, 0) / 100; // negative
+    .flatMap((g) => g.categories)
+    .reduce((sum, c) => sum + (c.spent ?? 0), 0) / 100; // negative
   const net = totalIncome + totalExpenses;
   const netLabel = net >= 0 ? `+${net.toFixed(2)}` : net.toFixed(2);
   const netEmoji = net >= 0 ? '📈' : '📉';
