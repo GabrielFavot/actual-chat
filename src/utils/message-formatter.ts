@@ -235,7 +235,8 @@ export function formatCategoryList(categories: Category[], groups?: Map<string, 
 
 /**
  * Format budget report for display in Telegram
- * Shows per-category remaining balance grouped by category group.
+ * Shows per-group summary with per-category breakdown.
+ * Each group shows aggregated totals; categories are listed underneath.
  * Filters out: income groups, hidden groups/categories, zero-activity categories.
  *
  * @param budget - BudgetMonth data from getBudgetMonth()
@@ -255,7 +256,13 @@ export function formatBudgetReport(budget: BudgetMonth, month: string): string {
     );
     if (activeCategories.length === 0) continue;
 
-    result += `<b>${group.name}</b>\n`;
+    const groupSpent = Math.abs(group.spent) / 100;
+    const groupBudgeted = group.budgeted / 100;
+    const groupBalance = group.balance / 100;
+    const groupEmoji = groupBalance < 0 ? '🔴' : groupBalance === 0 ? '⚪' : '🟢';
+
+    result += `${groupEmoji} <b>${group.name}</b>: ${groupBalance.toFixed(2)} left`;
+    result += ` (${groupSpent.toFixed(2)} / ${groupBudgeted.toFixed(2)})\n`;
 
     for (const cat of activeCategories) {
       const spent = Math.abs(cat.spent) / 100;
