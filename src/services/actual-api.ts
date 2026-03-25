@@ -147,9 +147,9 @@ export class ActualApiService {
       id: t.id,
       date: t.date,
       amount: t.amount,
-      payee_name: t.payee 
-        ? payeesMap.get(t.payee) // Try to get name from cached payees
-        : (t.imported_payee || 'Unknown'), // Fall back to imported_payee or Unknown
+      payee_name: t.payee
+        ? (payeesMap.get(t.payee) || t.imported_payee || 'Unknown')
+        : (t.imported_payee || 'Unknown'),
       category: t.category,
       account_id: t.account,
       transfer_id: t.transfer_id,
@@ -221,7 +221,7 @@ export class ActualApiService {
         id: t.id,
         date: t.date,
         amount: t.amount,
-        payee_name: t.payee ? payeesMap.get(t.payee) : (t.imported_payee || 'Unknown'),
+        payee_name: t.payee ? (payeesMap.get(t.payee) || t.imported_payee || 'Unknown') : (t.imported_payee || 'Unknown'),
         category: t.category,
         account_id: t.account,
         transfer_id: t.transfer_id,
@@ -304,6 +304,29 @@ export class ActualApiService {
   }
 
   /**
+   * Sync local budget copy from the Actual server.
+   * This pulls down any changes made in the Actual UI (e.g. categorizations)
+   * and clears local caches so fresh data is fetched on next query.
+   */
+  async syncFromServer(): Promise<void> {
+    if (!this.initialized) {
+      throw new Error('API not initialized');
+    }
+
+    try {
+      console.log('Syncing budget from server...');
+      await (actual as any).sync?.();
+      // Clear caches so fresh data is fetched after sync
+      this.payeesCache.clear();
+      this.accountsCache.clear();
+      console.log('✓ Budget sync from server completed');
+    } catch (error) {
+      console.error('Budget sync from server failed:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Run bank account sync
    * Syncs transactions from connected bank accounts
    * @throws Error if sync fails
@@ -312,7 +335,7 @@ export class ActualApiService {
     if (!this.initialized) {
       throw new Error('API not initialized');
     }
-    
+
     try {
       console.log('Starting bank account sync...');
       await (actual as any).runBankSync?.();

@@ -66,7 +66,17 @@ async function performPoll(
   try {
     console.log(`[${new Date().toISOString()}] Starting poll cycle...`);
 
-    // Sync bank accounts before fetching transactions
+    // Sync local budget from server first (picks up categorizations done in Actual UI)
+    try {
+      await actualApi.syncFromServer();
+    } catch (error) {
+      console.warn(
+        '⚠️ Budget sync from server failed, continuing with local data:',
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+
+    // Sync bank accounts to pull new transactions from banks
     try {
       await actualApi.syncBankAccounts();
     } catch (error) {
